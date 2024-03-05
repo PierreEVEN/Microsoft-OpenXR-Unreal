@@ -10,7 +10,7 @@
 #include "Interfaces/IPluginManager.h"
 
 #include "OpenXRCommon.h"
-#include "openxr_msft_holographic_remoting.h "
+#include "openxr_msft_holographic_remoting.h"
 
 #include "Windows/AllowWindowsPlatformTypes.h"
 #include <Windows.h>

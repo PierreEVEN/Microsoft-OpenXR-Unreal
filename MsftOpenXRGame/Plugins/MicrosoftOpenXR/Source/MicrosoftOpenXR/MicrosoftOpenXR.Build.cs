@@ -11,7 +11,7 @@ public class MicrosoftOpenXR : ModuleRules
 {
 	public MicrosoftOpenXR(ReadOnlyTargetRules Target) : base(Target)
 	{
-		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			// these parameters mandatory for winrt support
 			bEnableExceptions = true;
@@ -49,7 +49,8 @@ public class MicrosoftOpenXR : ModuleRules
 				"RHICore",
 				"RenderCore",
 				"Projects",
-				"NuGetModule"
+				"NuGetModule",
+				"XRBase"
 			}
 		);
 
@@ -87,7 +88,7 @@ public class MicrosoftOpenXR : ModuleRules
 			);
 
 		// DX-specific code for webcam texture processing
-		if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+		if (Target.Platform == UnrealTargetPlatform.Win64)
 		{
 			PrivateDependencyModuleNames.AddRange(new string[] {
 					"D3D11RHI",

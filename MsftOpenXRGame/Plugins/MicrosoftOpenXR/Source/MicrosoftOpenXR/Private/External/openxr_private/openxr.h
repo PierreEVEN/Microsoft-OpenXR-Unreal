@@ -2,7 +2,7 @@
 #define OPENXR_H_ 1
 
 /*
-** Copyright (c) 2017-2022, The Khronos Group Inc.
+** Copyright 2017-2023 The Khronos Group Inc.
 **
 ** SPDX-License-Identifier: Apache-2.0 OR MIT
 */
@@ -25,11 +25,14 @@ extern "C" {
     ((((major) & 0xffffULL) << 48) | (((minor) & 0xffffULL) << 32) | ((patch) & 0xffffffffULL))
 
 // OpenXR current version number.
-#define XR_CURRENT_API_VERSION XR_MAKE_VERSION(1, 0, 22)
+#define XR_CURRENT_API_VERSION XR_MAKE_VERSION(1, 0, 27)
 
 #define XR_VERSION_MAJOR(version) (uint16_t)(((uint64_t)(version) >> 48)& 0xffffULL)
 #define XR_VERSION_MINOR(version) (uint16_t)(((uint64_t)(version) >> 32) & 0xffffULL)
 #define XR_VERSION_PATCH(version) (uint32_t)((uint64_t)(version) & 0xffffffffULL)
+
+#define XR_MIN_COMPOSITION_LAYERS_SUPPORTED 16
+
 
 #if !defined(XR_NULL_HANDLE)
 #if (XR_PTR_SIZE == 8) && XR_CPP_NULLPTR_SUPPORTED
@@ -38,7 +41,7 @@ extern "C" {
     #define XR_NULL_HANDLE 0
 #endif
 #endif
-
+        
 
 
 #define XR_NULL_SYSTEM_ID 0
@@ -87,13 +90,13 @@ extern "C" {
     #define XR_DEFINE_HANDLE(object) typedef uint64_t object;
 #endif
 #endif
-
+        
 
 
 #if !defined(XR_DEFINE_ATOM)
     #define XR_DEFINE_ATOM(object) typedef uint64_t object;
 #endif
-
+        
 
 typedef uint64_t XrVersion;
 typedef uint64_t XrFlags64;
@@ -120,7 +123,6 @@ XR_DEFINE_HANDLE(XrActionSet)
 #define XR_MAX_PATH_LENGTH                256
 #define XR_MAX_STRUCTURE_NAME_SIZE        64
 #define XR_MAX_RESULT_STRING_SIZE         64
-#define XR_MIN_COMPOSITION_LAYERS_SUPPORTED 16
 #define XR_MAX_ACTION_SET_NAME_SIZE       64
 #define XR_MAX_LOCALIZED_ACTION_SET_NAME_SIZE 128
 #define XR_MAX_ACTION_NAME_SIZE           64
@@ -196,6 +198,10 @@ typedef enum XrResult {
     XR_ERROR_SCENE_COMPUTE_CONSISTENCY_MISMATCH_MSFT = -1000097005,
     XR_ERROR_DISPLAY_REFRESH_RATE_UNSUPPORTED_FB = -1000101000,
     XR_ERROR_COLOR_SPACE_UNSUPPORTED_FB = -1000108000,
+    XR_ERROR_SPACE_COMPONENT_NOT_SUPPORTED_FB = -1000113000,
+    XR_ERROR_SPACE_COMPONENT_NOT_ENABLED_FB = -1000113001,
+    XR_ERROR_SPACE_COMPONENT_STATUS_PENDING_FB = -1000113002,
+    XR_ERROR_SPACE_COMPONENT_STATUS_ALREADY_SET_FB = -1000113003,
     XR_ERROR_UNEXPECTED_STATE_PASSTHROUGH_FB = -1000118000,
     XR_ERROR_FEATURE_ALREADY_CREATED_PASSTHROUGH_FB = -1000118001,
     XR_ERROR_FEATURE_REQUIRED_PASSTHROUGH_FB = -1000118002,
@@ -208,6 +214,12 @@ typedef enum XrResult {
     XR_ERROR_MARKER_ID_INVALID_VARJO = -1000124001,
     XR_ERROR_SPATIAL_ANCHOR_NAME_NOT_FOUND_MSFT = -1000142001,
     XR_ERROR_SPATIAL_ANCHOR_NAME_INVALID_MSFT = -1000142002,
+    XR_ERROR_SPACE_MAPPING_INSUFFICIENT_FB = -1000169000,
+    XR_ERROR_SPACE_LOCALIZATION_FAILED_FB = -1000169001,
+    XR_ERROR_SPACE_NETWORK_TIMEOUT_FB = -1000169002,
+    XR_ERROR_SPACE_NETWORK_REQUEST_FAILED_FB = -1000169003,
+    XR_ERROR_SPACE_CLOUD_STORAGE_DISABLED_FB = -1000169004,
+    XR_ERROR_HINT_ALREADY_SET_QCOM = -1000306000,
     XR_RESULT_MAX_ENUM = 0x7FFFFFFF
 } XrResult;
 
@@ -304,6 +316,10 @@ typedef enum XrStructureType {
     XR_TYPE_COMPOSITION_LAYER_ALPHA_BLEND_FB = 1000041001,
     XR_TYPE_VIEW_CONFIGURATION_DEPTH_RANGE_EXT = 1000046000,
     XR_TYPE_GRAPHICS_BINDING_EGL_MNDX = 1000048004,
+    XR_TYPE_SPATIAL_GRAPH_NODE_SPACE_CREATE_INFO_MSFT = 1000049000,
+    XR_TYPE_SPATIAL_GRAPH_STATIC_NODE_BINDING_CREATE_INFO_MSFT = 1000049001,
+    XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_GET_INFO_MSFT = 1000049002,
+    XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_MSFT = 1000049003,
     XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_EXT = 1000051000,
     XR_TYPE_HAND_TRACKER_CREATE_INFO_EXT = 1000051001,
     XR_TYPE_HAND_JOINTS_LOCATE_INFO_EXT = 1000051002,
@@ -331,6 +347,12 @@ typedef enum XrStructureType {
     XR_TYPE_COMPOSITION_LAYER_REPROJECTION_PLANE_OVERRIDE_MSFT = 1000066001,
     XR_TYPE_ANDROID_SURFACE_SWAPCHAIN_CREATE_INFO_FB = 1000070000,
     XR_TYPE_COMPOSITION_LAYER_SECURE_CONTENT_FB = 1000072000,
+    XR_TYPE_BODY_TRACKER_CREATE_INFO_FB = 1000076001,
+    XR_TYPE_BODY_JOINTS_LOCATE_INFO_FB = 1000076002,
+    XR_TYPE_SYSTEM_BODY_TRACKING_PROPERTIES_FB = 1000076004,
+    XR_TYPE_BODY_JOINT_LOCATIONS_FB = 1000076005,
+    XR_TYPE_BODY_SKELETON_FB = 1000076006,
+    XR_TYPE_INTERACTION_PROFILE_DPAD_BINDING_EXT = 1000078000,
     XR_TYPE_INTERACTION_PROFILE_ANALOG_THRESHOLD_VALVE = 1000079000,
     XR_TYPE_HAND_JOINTS_MOTION_RANGE_INFO_EXT = 1000080000,
     XR_TYPE_LOADER_INIT_INFO_ANDROID_KHR = 1000089000,
@@ -370,6 +392,12 @@ typedef enum XrStructureType {
     XR_TYPE_HAND_TRACKING_SCALE_FB = 1000110003,
     XR_TYPE_HAND_TRACKING_AIM_STATE_FB = 1000111001,
     XR_TYPE_HAND_TRACKING_CAPSULES_STATE_FB = 1000112000,
+    XR_TYPE_SYSTEM_SPATIAL_ENTITY_PROPERTIES_FB = 1000113004,
+    XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_FB = 1000113003,
+    XR_TYPE_SPACE_COMPONENT_STATUS_SET_INFO_FB = 1000113007,
+    XR_TYPE_SPACE_COMPONENT_STATUS_FB = 1000113001,
+    XR_TYPE_EVENT_DATA_SPATIAL_ANCHOR_CREATE_COMPLETE_FB = 1000113005,
+    XR_TYPE_EVENT_DATA_SPACE_SET_STATUS_COMPLETE_FB = 1000113006,
     XR_TYPE_FOVEATION_PROFILE_CREATE_INFO_FB = 1000114000,
     XR_TYPE_SWAPCHAIN_CREATE_INFO_FOVEATION_FB = 1000114001,
     XR_TYPE_SWAPCHAIN_STATE_FOVEATION_FB = 1000114002,
@@ -384,15 +412,18 @@ typedef enum XrStructureType {
     XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_FB = 1000118003,
     XR_TYPE_GEOMETRY_INSTANCE_CREATE_INFO_FB = 1000118004,
     XR_TYPE_GEOMETRY_INSTANCE_TRANSFORM_FB = 1000118005,
+    XR_TYPE_SYSTEM_PASSTHROUGH_PROPERTIES2_FB = 1000118006,
     XR_TYPE_PASSTHROUGH_STYLE_FB = 1000118020,
     XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_RGBA_FB = 1000118021,
     XR_TYPE_PASSTHROUGH_COLOR_MAP_MONO_TO_MONO_FB = 1000118022,
+    XR_TYPE_PASSTHROUGH_BRIGHTNESS_CONTRAST_SATURATION_FB = 1000118023,
     XR_TYPE_EVENT_DATA_PASSTHROUGH_STATE_CHANGED_FB = 1000118030,
     XR_TYPE_RENDER_MODEL_PATH_INFO_FB = 1000119000,
     XR_TYPE_RENDER_MODEL_PROPERTIES_FB = 1000119001,
     XR_TYPE_RENDER_MODEL_BUFFER_FB = 1000119002,
     XR_TYPE_RENDER_MODEL_LOAD_INFO_FB = 1000119003,
     XR_TYPE_SYSTEM_RENDER_MODEL_PROPERTIES_FB = 1000119004,
+    XR_TYPE_RENDER_MODEL_CAPABILITIES_REQUEST_FB = 1000119005,
     XR_TYPE_BINDING_MODIFICATIONS_KHR = 1000120000,
     XR_TYPE_VIEW_LOCATE_FOVEATED_RENDERING_VARJO = 1000121000,
     XR_TYPE_FOVEATED_VIEW_CONFIGURATION_VIEW_VARJO = 1000121001,
@@ -401,23 +432,77 @@ typedef enum XrStructureType {
     XR_TYPE_SYSTEM_MARKER_TRACKING_PROPERTIES_VARJO = 1000124000,
     XR_TYPE_EVENT_DATA_MARKER_TRACKING_UPDATE_VARJO = 1000124001,
     XR_TYPE_MARKER_SPACE_CREATE_INFO_VARJO = 1000124002,
+    XR_TYPE_FRAME_END_INFO_ML = 1000135000,
+    XR_TYPE_GLOBAL_DIMMER_FRAME_END_INFO_ML = 1000136000,
+    XR_TYPE_COORDINATE_SPACE_CREATE_INFO_ML = 1000137000,
     XR_TYPE_SPATIAL_ANCHOR_PERSISTENCE_INFO_MSFT = 1000142000,
     XR_TYPE_SPATIAL_ANCHOR_FROM_PERSISTED_ANCHOR_CREATE_INFO_MSFT = 1000142001,
+    XR_TYPE_SPACE_QUERY_INFO_FB = 1000156001,
+    XR_TYPE_SPACE_QUERY_RESULTS_FB = 1000156002,
+    XR_TYPE_SPACE_STORAGE_LOCATION_FILTER_INFO_FB = 1000156003,
+    XR_TYPE_SPACE_UUID_FILTER_INFO_FB = 1000156054,
+    XR_TYPE_SPACE_COMPONENT_FILTER_INFO_FB = 1000156052,
+    XR_TYPE_EVENT_DATA_SPACE_QUERY_RESULTS_AVAILABLE_FB = 1000156103,
+    XR_TYPE_EVENT_DATA_SPACE_QUERY_COMPLETE_FB = 1000156104,
+    XR_TYPE_SPACE_SAVE_INFO_FB = 1000158000,
+    XR_TYPE_SPACE_ERASE_INFO_FB = 1000158001,
+    XR_TYPE_EVENT_DATA_SPACE_SAVE_COMPLETE_FB = 1000158106,
+    XR_TYPE_EVENT_DATA_SPACE_ERASE_COMPLETE_FB = 1000158107,
     XR_TYPE_SWAPCHAIN_IMAGE_FOVEATION_VULKAN_FB = 1000160000,
     XR_TYPE_SWAPCHAIN_STATE_ANDROID_SURFACE_DIMENSIONS_FB = 1000161000,
     XR_TYPE_SWAPCHAIN_STATE_SAMPLER_OPENGL_ES_FB = 1000162000,
     XR_TYPE_SWAPCHAIN_STATE_SAMPLER_VULKAN_FB = 1000163000,
+    XR_TYPE_SPACE_SHARE_INFO_FB = 1000169001,
+    XR_TYPE_EVENT_DATA_SPACE_SHARE_COMPLETE_FB = 1000169002,
     XR_TYPE_COMPOSITION_LAYER_SPACE_WARP_INFO_FB = 1000171000,
     XR_TYPE_SYSTEM_SPACE_WARP_PROPERTIES_FB = 1000171001,
+    XR_TYPE_HAPTIC_AMPLITUDE_ENVELOPE_VIBRATION_FB = 1000173001,
+    XR_TYPE_SEMANTIC_LABELS_FB = 1000175000,
+    XR_TYPE_ROOM_LAYOUT_FB = 1000175001,
+    XR_TYPE_BOUNDARY_2D_FB = 1000175002,
     XR_TYPE_DIGITAL_LENS_CONTROL_ALMALENCE = 1000196000,
+    XR_TYPE_EVENT_DATA_SCENE_CAPTURE_COMPLETE_FB = 1000198001,
+    XR_TYPE_SCENE_CAPTURE_REQUEST_INFO_FB = 1000198050,
+    XR_TYPE_SPACE_CONTAINER_FB = 1000199000,
+    XR_TYPE_FOVEATION_EYE_TRACKED_PROFILE_CREATE_INFO_META = 1000200000,
+    XR_TYPE_FOVEATION_EYE_TRACKED_STATE_META = 1000200001,
+    XR_TYPE_SYSTEM_FOVEATION_EYE_TRACKED_PROPERTIES_META = 1000200002,
+    XR_TYPE_SYSTEM_FACE_TRACKING_PROPERTIES_FB = 1000201004,
+    XR_TYPE_FACE_TRACKER_CREATE_INFO_FB = 1000201005,
+    XR_TYPE_FACE_EXPRESSION_INFO_FB = 1000201002,
+    XR_TYPE_FACE_EXPRESSION_WEIGHTS_FB = 1000201006,
+    XR_TYPE_EYE_TRACKER_CREATE_INFO_FB = 1000202001,
+    XR_TYPE_EYE_GAZES_INFO_FB = 1000202002,
+    XR_TYPE_EYE_GAZES_FB = 1000202003,
+    XR_TYPE_SYSTEM_EYE_TRACKING_PROPERTIES_FB = 1000202004,
     XR_TYPE_PASSTHROUGH_KEYBOARD_HANDS_INTENSITY_FB = 1000203002,
-    XR_TYPE_SPATIAL_GRAPH_NODE_SPACE_CREATE_INFO_MSFT = 1000049000,
-    XR_TYPE_SPATIAL_GRAPH_STATIC_NODE_BINDING_CREATE_INFO_MSFT = 1000049001,
-    XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_GET_INFO_MSFT = 1000049002,
-    XR_TYPE_SPATIAL_GRAPH_NODE_BINDING_PROPERTIES_MSFT = 1000049003,
+    XR_TYPE_COMPOSITION_LAYER_SETTINGS_FB = 1000204000,
+    XR_TYPE_HAPTIC_PCM_VIBRATION_FB = 1000209001,
+    XR_TYPE_DEVICE_PCM_SAMPLE_RATE_STATE_FB = 1000209002,
+    XR_TYPE_COMPOSITION_LAYER_DEPTH_TEST_FB = 1000212000,
+    XR_TYPE_LOCAL_DIMMING_FRAME_END_INFO_META = 1000216000,
+    XR_TYPE_EXTERNAL_CAMERA_OCULUS = 1000226000,
+    XR_TYPE_VULKAN_SWAPCHAIN_CREATE_INFO_META = 1000227000,
+    XR_TYPE_PERFORMANCE_METRICS_STATE_META = 1000232001,
+    XR_TYPE_PERFORMANCE_METRICS_COUNTER_META = 1000232002,
+    XR_TYPE_SPACE_LIST_SAVE_INFO_FB = 1000238000,
+    XR_TYPE_EVENT_DATA_SPACE_LIST_SAVE_COMPLETE_FB = 1000238001,
+    XR_TYPE_SPACE_USER_CREATE_INFO_FB = 1000241001,
+    XR_TYPE_SYSTEM_HEADSET_ID_PROPERTIES_META = 1000245000,
+    XR_TYPE_PASSTHROUGH_CREATE_INFO_HTC = 1000317001,
+    XR_TYPE_PASSTHROUGH_COLOR_HTC = 1000317002,
+    XR_TYPE_PASSTHROUGH_MESH_TRANSFORM_INFO_HTC = 1000317003,
+    XR_TYPE_COMPOSITION_LAYER_PASSTHROUGH_HTC = 1000317004,
+    XR_TYPE_FOVEATION_APPLY_INFO_HTC = 1000318000,
+    XR_TYPE_FOVEATION_DYNAMIC_MODE_INFO_HTC = 1000318001,
+    XR_TYPE_FOVEATION_CUSTOM_MODE_INFO_HTC = 1000318002,
+    XR_TYPE_ACTIVE_ACTION_SET_PRIORITIES_EXT = 1000373000,
+    XR_TYPE_SYSTEM_FORCE_FEEDBACK_CURL_PROPERTIES_MNDX = 1000375000,
+    XR_TYPE_FORCE_FEEDBACK_CURL_APPLY_LOCATIONS_MNDX = 1000375001,
     XR_TYPE_GRAPHICS_BINDING_VULKAN2_KHR = XR_TYPE_GRAPHICS_BINDING_VULKAN_KHR,
     XR_TYPE_SWAPCHAIN_IMAGE_VULKAN2_KHR = XR_TYPE_SWAPCHAIN_IMAGE_VULKAN_KHR,
     XR_TYPE_GRAPHICS_REQUIREMENTS_VULKAN2_KHR = XR_TYPE_GRAPHICS_REQUIREMENTS_VULKAN_KHR,
+    XR_TYPE_DEVICE_PCM_SAMPLE_RATE_GET_INFO_FB = XR_TYPE_DEVICE_PCM_SAMPLE_RATE_STATE_FB,
     XR_STRUCTURE_TYPE_MAX_ENUM = 0x7FFFFFFF
 } XrStructureType;
 
@@ -448,6 +533,7 @@ typedef enum XrReferenceSpaceType {
     XR_REFERENCE_SPACE_TYPE_STAGE = 3,
     XR_REFERENCE_SPACE_TYPE_UNBOUNDED_MSFT = 1000038000,
     XR_REFERENCE_SPACE_TYPE_COMBINED_EYE_VARJO = 1000121000,
+    XR_REFERENCE_SPACE_TYPE_LOCAL_FLOOR_EXT = 1000426000,
     XR_REFERENCE_SPACE_TYPE_MAX_ENUM = 0x7FFFFFFF
 } XrReferenceSpaceType;
 
@@ -490,7 +576,9 @@ typedef enum XrObjectType {
     XR_OBJECT_TYPE_ACTION = 6,
     XR_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT = 1000019000,
     XR_OBJECT_TYPE_SPATIAL_ANCHOR_MSFT = 1000039000,
+    XR_OBJECT_TYPE_SPATIAL_GRAPH_NODE_BINDING_MSFT = 1000049000,
     XR_OBJECT_TYPE_HAND_TRACKER_EXT = 1000051000,
+    XR_OBJECT_TYPE_BODY_TRACKER_FB = 1000076000,
     XR_OBJECT_TYPE_SCENE_OBSERVER_MSFT = 1000097000,
     XR_OBJECT_TYPE_SCENE_MSFT = 1000097001,
     XR_OBJECT_TYPE_FACIAL_TRACKER_HTC = 1000104000,
@@ -500,7 +588,10 @@ typedef enum XrObjectType {
     XR_OBJECT_TYPE_PASSTHROUGH_LAYER_FB = 1000118002,
     XR_OBJECT_TYPE_GEOMETRY_INSTANCE_FB = 1000118004,
     XR_OBJECT_TYPE_SPATIAL_ANCHOR_STORE_CONNECTION_MSFT = 1000142000,
-    XR_OBJECT_TYPE_SPATIAL_GRAPH_NODE_BINDING_MSFT = 1000049000,
+    XR_OBJECT_TYPE_FACE_TRACKER_FB = 1000201000,
+    XR_OBJECT_TYPE_EYE_TRACKER_FB = 1000202000,
+    XR_OBJECT_TYPE_SPACE_USER_FB = 1000241000,
+    XR_OBJECT_TYPE_PASSTHROUGH_HTC = 1000317000,
     XR_OBJECT_TYPE_MAX_ENUM = 0x7FFFFFFF
 } XrObjectType;
 typedef XrFlags64 XrInstanceCreateFlags;
@@ -1027,7 +1118,7 @@ typedef struct XrEventDataInstanceLossPending {
 } XrEventDataInstanceLossPending;
 
 typedef struct XrEventDataSessionStateChanged {
-    XrStructureType             type;
+     XrStructureType            type;
     const void* XR_MAY_ALIAS    next;
     XrSession                   session;
     XrSessionState              state;
@@ -1100,7 +1191,7 @@ typedef XrResult (XRAPI_PTR *PFN_xrEnumerateReferenceSpaces)(XrSession session, 
 typedef XrResult (XRAPI_PTR *PFN_xrCreateReferenceSpace)(XrSession session, const XrReferenceSpaceCreateInfo* createInfo, XrSpace* space);
 typedef XrResult (XRAPI_PTR *PFN_xrGetReferenceSpaceBoundsRect)(XrSession session, XrReferenceSpaceType referenceSpaceType, XrExtent2Df* bounds);
 typedef XrResult (XRAPI_PTR *PFN_xrCreateActionSpace)(XrSession session, const XrActionSpaceCreateInfo* createInfo, XrSpace* space);
-typedef XrResult (XRAPI_PTR *PFN_xrLocateSpace)(XrSpace space, XrSpace baseSpace, XrTime time, XrSpaceLocation* location);
+typedef XrResult (XRAPI_PTR *PFN_xrLocateSpace)(XrSpace space, XrSpace baseSpace, XrTime   time, XrSpaceLocation* location);
 typedef XrResult (XRAPI_PTR *PFN_xrDestroySpace)(XrSpace space);
 typedef XrResult (XRAPI_PTR *PFN_xrEnumerateViewConfigurations)(XrInstance instance, XrSystemId systemId, uint32_t viewConfigurationTypeCapacityInput, uint32_t* viewConfigurationTypeCountOutput, XrViewConfigurationType* viewConfigurationTypes);
 typedef XrResult (XRAPI_PTR *PFN_xrGetViewConfigurationProperties)(XrInstance instance, XrSystemId systemId, XrViewConfigurationType viewConfigurationType, XrViewConfigurationProperties* configurationProperties);
@@ -1109,9 +1200,9 @@ typedef XrResult (XRAPI_PTR *PFN_xrEnumerateSwapchainFormats)(XrSession session,
 typedef XrResult (XRAPI_PTR *PFN_xrCreateSwapchain)(XrSession session, const XrSwapchainCreateInfo* createInfo, XrSwapchain* swapchain);
 typedef XrResult (XRAPI_PTR *PFN_xrDestroySwapchain)(XrSwapchain swapchain);
 typedef XrResult (XRAPI_PTR *PFN_xrEnumerateSwapchainImages)(XrSwapchain swapchain, uint32_t imageCapacityInput, uint32_t* imageCountOutput, XrSwapchainImageBaseHeader* images);
-typedef XrResult (XRAPI_PTR *PFN_xrAcquireSwapchainImage)(XrSwapchain swapchain, const XrSwapchainImageAcquireInfo* acquireInfo, uint32_t* index);
+typedef XrResult (XRAPI_PTR *PFN_xrAcquireSwapchainImage)(XrSwapchain         swapchain, const XrSwapchainImageAcquireInfo* acquireInfo, uint32_t* index);
 typedef XrResult (XRAPI_PTR *PFN_xrWaitSwapchainImage)(XrSwapchain swapchain, const XrSwapchainImageWaitInfo* waitInfo);
-typedef XrResult (XRAPI_PTR *PFN_xrReleaseSwapchainImage)(XrSwapchain swapchain, const XrSwapchainImageReleaseInfo* releaseInfo);
+typedef XrResult (XRAPI_PTR *PFN_xrReleaseSwapchainImage)(XrSwapchain         swapchain, const XrSwapchainImageReleaseInfo* releaseInfo);
 typedef XrResult (XRAPI_PTR *PFN_xrBeginSession)(XrSession session, const XrSessionBeginInfo* beginInfo);
 typedef XrResult (XRAPI_PTR *PFN_xrEndSession)(XrSession session);
 typedef XrResult (XRAPI_PTR *PFN_xrRequestExitSession)(XrSession session);
@@ -1428,7 +1519,7 @@ typedef struct XrCompositionLayerCubeKHR {
 
 
 #define XR_KHR_composition_layer_depth 1
-#define XR_KHR_composition_layer_depth_SPEC_VERSION 5
+#define XR_KHR_composition_layer_depth_SPEC_VERSION 6
 #define XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME "XR_KHR_composition_layer_depth"
 // XrCompositionLayerDepthInfoKHR extends XrCompositionLayerProjectionView
 typedef struct XrCompositionLayerDepthInfoKHR {
@@ -1596,7 +1687,7 @@ typedef struct XrBindingModificationsKHR {
 
 
 #define XR_EXT_performance_settings 1
-#define XR_EXT_performance_settings_SPEC_VERSION 3
+#define XR_EXT_performance_settings_SPEC_VERSION 4
 #define XR_EXT_PERFORMANCE_SETTINGS_EXTENSION_NAME "XR_EXT_performance_settings"
 
 typedef enum XrPerfSettingsDomainEXT {
@@ -1715,7 +1806,7 @@ typedef XrBool32 (XRAPI_PTR *PFN_xrDebugUtilsMessengerCallbackEXT)(
             XrDebugUtilsMessageTypeFlagsEXT                  messageTypes,
             const XrDebugUtilsMessengerCallbackDataEXT*      callbackData,
             void*                                            userData);
-
+        
 
 // XrDebugUtilsMessengerCreateInfoEXT extends XrInstanceCreateInfo
 typedef struct XrDebugUtilsMessengerCreateInfoEXT {
@@ -1730,7 +1821,7 @@ typedef struct XrDebugUtilsMessengerCreateInfoEXT {
 typedef XrResult (XRAPI_PTR *PFN_xrSetDebugUtilsObjectNameEXT)(XrInstance instance, const XrDebugUtilsObjectNameInfoEXT* nameInfo);
 typedef XrResult (XRAPI_PTR *PFN_xrCreateDebugUtilsMessengerEXT)(XrInstance instance, const XrDebugUtilsMessengerCreateInfoEXT* createInfo, XrDebugUtilsMessengerEXT* messenger);
 typedef XrResult (XRAPI_PTR *PFN_xrDestroyDebugUtilsMessengerEXT)(XrDebugUtilsMessengerEXT messenger);
-typedef XrResult (XRAPI_PTR *PFN_xrSubmitDebugUtilsMessageEXT)(XrInstance instance, XrDebugUtilsMessageSeverityFlagsEXT messageSeverity, XrDebugUtilsMessageTypeFlagsEXT messageTypes, const XrDebugUtilsMessengerCallbackDataEXT* callbackData);
+typedef XrResult                                    (XRAPI_PTR *PFN_xrSubmitDebugUtilsMessageEXT)(XrInstance                                  instance, XrDebugUtilsMessageSeverityFlagsEXT         messageSeverity, XrDebugUtilsMessageTypeFlagsEXT             messageTypes, const XrDebugUtilsMessengerCallbackDataEXT* callbackData);
 typedef XrResult (XRAPI_PTR *PFN_xrSessionBeginDebugUtilsLabelRegionEXT)(XrSession session, const XrDebugUtilsLabelEXT* labelInfo);
 typedef XrResult (XRAPI_PTR *PFN_xrSessionEndDebugUtilsLabelRegionEXT)(XrSession session);
 typedef XrResult (XRAPI_PTR *PFN_xrSessionInsertDebugUtilsLabelEXT)(XrSession session, const XrDebugUtilsLabelEXT* labelInfo);
@@ -1749,7 +1840,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateDebugUtilsMessengerEXT(
 XRAPI_ATTR XrResult XRAPI_CALL xrDestroyDebugUtilsMessengerEXT(
     XrDebugUtilsMessengerEXT                    messenger);
 
-XRAPI_ATTR XrResult XRAPI_CALL xrSubmitDebugUtilsMessageEXT(
+XRAPI_ATTR XrResult                                    XRAPI_CALL xrSubmitDebugUtilsMessageEXT(
     XrInstance                                  instance,
     XrDebugUtilsMessageSeverityFlagsEXT         messageSeverity,
     XrDebugUtilsMessageTypeFlagsEXT             messageTypes,
@@ -1770,7 +1861,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSessionInsertDebugUtilsLabelEXT(
 
 
 #define XR_EXT_eye_gaze_interaction 1
-#define XR_EXT_eye_gaze_interaction_SPEC_VERSION 1
+#define XR_EXT_eye_gaze_interaction_SPEC_VERSION 2
 #define XR_EXT_EYE_GAZE_INTERACTION_EXTENSION_NAME "XR_EXT_eye_gaze_interaction"
 // XrSystemEyeGazeInteractionPropertiesEXT extends XrSystemProperties
 typedef struct XrSystemEyeGazeInteractionPropertiesEXT {
@@ -1981,9 +2072,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetInputDeviceLocationEXT(
 
 
 #define XR_MSFT_spatial_graph_bridge 1
-
-            XR_DEFINE_HANDLE(XrSpatialGraphNodeBindingMSFT)
-
+XR_DEFINE_HANDLE(XrSpatialGraphNodeBindingMSFT)
 #define XR_MSFT_spatial_graph_bridge_SPEC_VERSION 2
 #define XR_MSFT_SPATIAL_GRAPH_BRIDGE_EXTENSION_NAME "XR_MSFT_spatial_graph_bridge"
 #define XR_GUID_SIZE_MSFT                 16
@@ -1997,7 +2086,7 @@ typedef struct XrSpatialGraphNodeSpaceCreateInfoMSFT {
     XrStructureType               type;
     const void* XR_MAY_ALIAS      next;
     XrSpatialGraphNodeTypeMSFT    nodeType;
-    uint8_t                       nodeId[16];
+    uint8_t                       nodeId[XR_GUID_SIZE_MSFT];
     XrPosef                       pose;
 } XrSpatialGraphNodeSpaceCreateInfoMSFT;
 
@@ -2100,6 +2189,7 @@ typedef enum XrHandJointEXT {
 
 typedef enum XrHandJointSetEXT {
     XR_HAND_JOINT_SET_DEFAULT_EXT = 0,
+    XR_HAND_JOINT_SET_HAND_WITH_FOREARM_ULTRALEAP = 1000149000,
     XR_HAND_JOINT_SET_MAX_ENUM_EXT = 0x7FFFFFFF
 } XrHandJointSetEXT;
 // XrSystemHandTrackingPropertiesEXT extends XrSystemProperties
@@ -2498,6 +2588,186 @@ typedef struct XrCompositionLayerSecureContentFB {
 
 
 
+#define XR_FB_body_tracking 1
+XR_DEFINE_HANDLE(XrBodyTrackerFB)
+#define XR_FB_body_tracking_SPEC_VERSION  1
+#define XR_FB_BODY_TRACKING_EXTENSION_NAME "XR_FB_body_tracking"
+
+typedef enum XrBodyJointFB {
+    XR_BODY_JOINT_ROOT_FB = 0,
+    XR_BODY_JOINT_HIPS_FB = 1,
+    XR_BODY_JOINT_SPINE_LOWER_FB = 2,
+    XR_BODY_JOINT_SPINE_MIDDLE_FB = 3,
+    XR_BODY_JOINT_SPINE_UPPER_FB = 4,
+    XR_BODY_JOINT_CHEST_FB = 5,
+    XR_BODY_JOINT_NECK_FB = 6,
+    XR_BODY_JOINT_HEAD_FB = 7,
+    XR_BODY_JOINT_LEFT_SHOULDER_FB = 8,
+    XR_BODY_JOINT_LEFT_SCAPULA_FB = 9,
+    XR_BODY_JOINT_LEFT_ARM_UPPER_FB = 10,
+    XR_BODY_JOINT_LEFT_ARM_LOWER_FB = 11,
+    XR_BODY_JOINT_LEFT_HAND_WRIST_TWIST_FB = 12,
+    XR_BODY_JOINT_RIGHT_SHOULDER_FB = 13,
+    XR_BODY_JOINT_RIGHT_SCAPULA_FB = 14,
+    XR_BODY_JOINT_RIGHT_ARM_UPPER_FB = 15,
+    XR_BODY_JOINT_RIGHT_ARM_LOWER_FB = 16,
+    XR_BODY_JOINT_RIGHT_HAND_WRIST_TWIST_FB = 17,
+    XR_BODY_JOINT_LEFT_HAND_PALM_FB = 18,
+    XR_BODY_JOINT_LEFT_HAND_WRIST_FB = 19,
+    XR_BODY_JOINT_LEFT_HAND_THUMB_METACARPAL_FB = 20,
+    XR_BODY_JOINT_LEFT_HAND_THUMB_PROXIMAL_FB = 21,
+    XR_BODY_JOINT_LEFT_HAND_THUMB_DISTAL_FB = 22,
+    XR_BODY_JOINT_LEFT_HAND_THUMB_TIP_FB = 23,
+    XR_BODY_JOINT_LEFT_HAND_INDEX_METACARPAL_FB = 24,
+    XR_BODY_JOINT_LEFT_HAND_INDEX_PROXIMAL_FB = 25,
+    XR_BODY_JOINT_LEFT_HAND_INDEX_INTERMEDIATE_FB = 26,
+    XR_BODY_JOINT_LEFT_HAND_INDEX_DISTAL_FB = 27,
+    XR_BODY_JOINT_LEFT_HAND_INDEX_TIP_FB = 28,
+    XR_BODY_JOINT_LEFT_HAND_MIDDLE_METACARPAL_FB = 29,
+    XR_BODY_JOINT_LEFT_HAND_MIDDLE_PROXIMAL_FB = 30,
+    XR_BODY_JOINT_LEFT_HAND_MIDDLE_INTERMEDIATE_FB = 31,
+    XR_BODY_JOINT_LEFT_HAND_MIDDLE_DISTAL_FB = 32,
+    XR_BODY_JOINT_LEFT_HAND_MIDDLE_TIP_FB = 33,
+    XR_BODY_JOINT_LEFT_HAND_RING_METACARPAL_FB = 34,
+    XR_BODY_JOINT_LEFT_HAND_RING_PROXIMAL_FB = 35,
+    XR_BODY_JOINT_LEFT_HAND_RING_INTERMEDIATE_FB = 36,
+    XR_BODY_JOINT_LEFT_HAND_RING_DISTAL_FB = 37,
+    XR_BODY_JOINT_LEFT_HAND_RING_TIP_FB = 38,
+    XR_BODY_JOINT_LEFT_HAND_LITTLE_METACARPAL_FB = 39,
+    XR_BODY_JOINT_LEFT_HAND_LITTLE_PROXIMAL_FB = 40,
+    XR_BODY_JOINT_LEFT_HAND_LITTLE_INTERMEDIATE_FB = 41,
+    XR_BODY_JOINT_LEFT_HAND_LITTLE_DISTAL_FB = 42,
+    XR_BODY_JOINT_LEFT_HAND_LITTLE_TIP_FB = 43,
+    XR_BODY_JOINT_RIGHT_HAND_PALM_FB = 44,
+    XR_BODY_JOINT_RIGHT_HAND_WRIST_FB = 45,
+    XR_BODY_JOINT_RIGHT_HAND_THUMB_METACARPAL_FB = 46,
+    XR_BODY_JOINT_RIGHT_HAND_THUMB_PROXIMAL_FB = 47,
+    XR_BODY_JOINT_RIGHT_HAND_THUMB_DISTAL_FB = 48,
+    XR_BODY_JOINT_RIGHT_HAND_THUMB_TIP_FB = 49,
+    XR_BODY_JOINT_RIGHT_HAND_INDEX_METACARPAL_FB = 50,
+    XR_BODY_JOINT_RIGHT_HAND_INDEX_PROXIMAL_FB = 51,
+    XR_BODY_JOINT_RIGHT_HAND_INDEX_INTERMEDIATE_FB = 52,
+    XR_BODY_JOINT_RIGHT_HAND_INDEX_DISTAL_FB = 53,
+    XR_BODY_JOINT_RIGHT_HAND_INDEX_TIP_FB = 54,
+    XR_BODY_JOINT_RIGHT_HAND_MIDDLE_METACARPAL_FB = 55,
+    XR_BODY_JOINT_RIGHT_HAND_MIDDLE_PROXIMAL_FB = 56,
+    XR_BODY_JOINT_RIGHT_HAND_MIDDLE_INTERMEDIATE_FB = 57,
+    XR_BODY_JOINT_RIGHT_HAND_MIDDLE_DISTAL_FB = 58,
+    XR_BODY_JOINT_RIGHT_HAND_MIDDLE_TIP_FB = 59,
+    XR_BODY_JOINT_RIGHT_HAND_RING_METACARPAL_FB = 60,
+    XR_BODY_JOINT_RIGHT_HAND_RING_PROXIMAL_FB = 61,
+    XR_BODY_JOINT_RIGHT_HAND_RING_INTERMEDIATE_FB = 62,
+    XR_BODY_JOINT_RIGHT_HAND_RING_DISTAL_FB = 63,
+    XR_BODY_JOINT_RIGHT_HAND_RING_TIP_FB = 64,
+    XR_BODY_JOINT_RIGHT_HAND_LITTLE_METACARPAL_FB = 65,
+    XR_BODY_JOINT_RIGHT_HAND_LITTLE_PROXIMAL_FB = 66,
+    XR_BODY_JOINT_RIGHT_HAND_LITTLE_INTERMEDIATE_FB = 67,
+    XR_BODY_JOINT_RIGHT_HAND_LITTLE_DISTAL_FB = 68,
+    XR_BODY_JOINT_RIGHT_HAND_LITTLE_TIP_FB = 69,
+    XR_BODY_JOINT_COUNT_FB = 70,
+    XR_BODY_JOINT_NONE_FB = -1,
+    XR_BODY_JOINT_MAX_ENUM_FB = 0x7FFFFFFF
+} XrBodyJointFB;
+
+typedef enum XrBodyJointSetFB {
+    XR_BODY_JOINT_SET_DEFAULT_FB = 0,
+    XR_BODY_JOINT_SET_MAX_ENUM_FB = 0x7FFFFFFF
+} XrBodyJointSetFB;
+typedef struct XrBodyJointLocationFB {
+    XrSpaceLocationFlags    locationFlags;
+    XrPosef                 pose;
+} XrBodyJointLocationFB;
+
+// XrSystemBodyTrackingPropertiesFB extends XrSystemProperties
+typedef struct XrSystemBodyTrackingPropertiesFB {
+    XrStructureType       type;
+    void* XR_MAY_ALIAS    next;
+    XrBool32              supportsBodyTracking;
+} XrSystemBodyTrackingPropertiesFB;
+
+typedef struct XrBodyTrackerCreateInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrBodyJointSetFB            bodyJointSet;
+} XrBodyTrackerCreateInfoFB;
+
+typedef struct XrBodySkeletonJointFB {
+    int32_t    joint;
+    int32_t    parentJoint;
+    XrPosef    pose;
+} XrBodySkeletonJointFB;
+
+typedef struct XrBodySkeletonFB {
+    XrStructureType           type;
+    void* XR_MAY_ALIAS        next;
+    uint32_t                  jointCount;
+    XrBodySkeletonJointFB*    joints;
+} XrBodySkeletonFB;
+
+typedef struct XrBodyJointsLocateInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrSpace                     baseSpace;
+    XrTime                      time;
+} XrBodyJointsLocateInfoFB;
+
+typedef struct XrBodyJointLocationsFB {
+    XrStructureType           type;
+    void* XR_MAY_ALIAS        next;
+    XrBool32                  isActive;
+    float                     confidence;
+    uint32_t                  jointCount;
+    XrBodyJointLocationFB*    jointLocations;
+    uint32_t                  skeletonChangedCount;
+    XrTime                    time;
+} XrBodyJointLocationsFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrCreateBodyTrackerFB)(XrSession session, const XrBodyTrackerCreateInfoFB* createInfo, XrBodyTrackerFB* bodyTracker);
+typedef XrResult (XRAPI_PTR *PFN_xrDestroyBodyTrackerFB)(XrBodyTrackerFB bodyTracker);
+typedef XrResult (XRAPI_PTR *PFN_xrLocateBodyJointsFB)(XrBodyTrackerFB bodyTracker, const XrBodyJointsLocateInfoFB* locateInfo, XrBodyJointLocationsFB* locations);
+typedef XrResult (XRAPI_PTR *PFN_xrGetBodySkeletonFB)(XrBodyTrackerFB bodyTracker, XrBodySkeletonFB* skeleton);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateBodyTrackerFB(
+    XrSession                                   session,
+    const XrBodyTrackerCreateInfoFB*            createInfo,
+    XrBodyTrackerFB*                            bodyTracker);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyBodyTrackerFB(
+    XrBodyTrackerFB                             bodyTracker);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrLocateBodyJointsFB(
+    XrBodyTrackerFB                             bodyTracker,
+    const XrBodyJointsLocateInfoFB*             locateInfo,
+    XrBodyJointLocationsFB*                     locations);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetBodySkeletonFB(
+    XrBodyTrackerFB                             bodyTracker,
+    XrBodySkeletonFB*                           skeleton);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_EXT_dpad_binding 1
+#define XR_EXT_dpad_binding_SPEC_VERSION  1
+#define XR_EXT_DPAD_BINDING_EXTENSION_NAME "XR_EXT_dpad_binding"
+typedef struct XrInteractionProfileDpadBindingEXT {
+    XrStructureType              type;
+    const void* XR_MAY_ALIAS     next;
+    XrPath                       binding;
+    XrActionSet                  actionSet;
+    float                        forceThreshold;
+    float                        forceThresholdReleased;
+    float                        centerRegion;
+    float                        wedgeAngle;
+    XrBool32                     isSticky;
+    const XrHapticBaseHeader*    onHaptic;
+    const XrHapticBaseHeader*    offHaptic;
+} XrInteractionProfileDpadBindingEXT;
+
+
+
 #define XR_VALVE_analog_threshold 1
 #define XR_VALVE_analog_threshold_SPEC_VERSION 2
 #define XR_VALVE_ANALOG_THRESHOLD_EXTENSION_NAME "XR_VALVE_analog_threshold"
@@ -2554,7 +2824,7 @@ typedef struct XrHandJointsMotionRangeInfoEXT {
 
             XR_DEFINE_HANDLE(XrSceneMSFT)
 
-#define XR_MSFT_scene_understanding_SPEC_VERSION 1
+#define XR_MSFT_scene_understanding_SPEC_VERSION 2
 #define XR_MSFT_SCENE_UNDERSTANDING_EXTENSION_NAME "XR_MSFT_scene_understanding"
 
 typedef enum XrSceneComputeFeatureMSFT {
@@ -2876,7 +3146,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetSceneMeshBuffersMSFT(
 
 
 #define XR_MSFT_scene_understanding_serialization 1
-#define XR_MSFT_scene_understanding_serialization_SPEC_VERSION 1
+#define XR_MSFT_scene_understanding_serialization_SPEC_VERSION 2
 #define XR_MSFT_SCENE_UNDERSTANDING_SERIALIZATION_EXTENSION_NAME "XR_MSFT_scene_understanding_serialization"
 typedef struct XrSerializedSceneFragmentDataGetInfoMSFT {
     XrStructureType             type;
@@ -2954,7 +3224,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrRequestDisplayRefreshRateFB(
 
 
 #define XR_HTCX_vive_tracker_interaction 1
-#define XR_HTCX_vive_tracker_interaction_SPEC_VERSION 1
+#define XR_HTCX_vive_tracker_interaction_SPEC_VERSION 2
 #define XR_HTCX_VIVE_TRACKER_INTERACTION_EXTENSION_NAME "XR_HTCX_vive_tracker_interaction"
 typedef struct XrViveTrackerPathsHTCX {
     XrStructureType       type;
@@ -2990,7 +3260,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateViveTrackerPathsHTCX(
 #define XR_FACIAL_EXPRESSION_LIP_COUNT_HTC 37
 
 XR_DEFINE_HANDLE(XrFacialTrackerHTC)
-#define XR_HTC_facial_tracking_SPEC_VERSION 1
+#define XR_HTC_facial_tracking_SPEC_VERSION 2
 #define XR_HTC_FACIAL_TRACKING_EXTENSION_NAME "XR_HTC_facial_tracking"
 
 typedef enum XrEyeExpressionHTC {
@@ -3102,12 +3372,22 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetFacialExpressionsHTC(
 
 
 #define XR_HTC_vive_focus3_controller_interaction 1
-#define XR_HTC_vive_focus3_controller_interaction_SPEC_VERSION 1
+#define XR_HTC_vive_focus3_controller_interaction_SPEC_VERSION 2
 #define XR_HTC_VIVE_FOCUS3_CONTROLLER_INTERACTION_EXTENSION_NAME "XR_HTC_vive_focus3_controller_interaction"
 
 
+#define XR_HTC_hand_interaction 1
+#define XR_HTC_hand_interaction_SPEC_VERSION 1
+#define XR_HTC_HAND_INTERACTION_EXTENSION_NAME "XR_HTC_hand_interaction"
+
+
+#define XR_HTC_vive_wrist_tracker_interaction 1
+#define XR_HTC_vive_wrist_tracker_interaction_SPEC_VERSION 1
+#define XR_HTC_VIVE_WRIST_TRACKER_INTERACTION_EXTENSION_NAME "XR_HTC_vive_wrist_tracker_interaction"
+
+
 #define XR_FB_color_space 1
-#define XR_FB_color_space_SPEC_VERSION    2
+#define XR_FB_color_space_SPEC_VERSION    3
 #define XR_FB_COLOR_SPACE_EXTENSION_NAME  "XR_FB_color_space"
 
 typedef enum XrColorSpaceFB {
@@ -3147,7 +3427,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetColorSpaceFB(
 
 
 #define XR_FB_hand_tracking_mesh 1
-#define XR_FB_hand_tracking_mesh_SPEC_VERSION 1
+#define XR_FB_hand_tracking_mesh_SPEC_VERSION 3
 #define XR_FB_HAND_TRACKING_MESH_EXTENSION_NAME "XR_FB_hand_tracking_mesh"
 typedef struct XrVector4sFB {
     int16_t    x;
@@ -3176,7 +3456,7 @@ typedef struct XrHandTrackingMeshFB {
     int16_t*              indices;
 } XrHandTrackingMeshFB;
 
-// XrHandTrackingScaleFB extends XrHandJointsLocateInfoEXT
+// XrHandTrackingScaleFB extends XrHandJointLocationsEXT
 typedef struct XrHandTrackingScaleFB {
     XrStructureType       type;
     void* XR_MAY_ALIAS    next;
@@ -3198,7 +3478,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGetHandMeshFB(
 
 
 #define XR_FB_hand_tracking_aim 1
-#define XR_FB_hand_tracking_aim_SPEC_VERSION 1
+#define XR_FB_hand_tracking_aim_SPEC_VERSION 2
 #define XR_FB_HAND_TRACKING_AIM_EXTENSION_NAME "XR_FB_hand_tracking_aim"
 typedef XrFlags64 XrHandTrackingAimFlagsFB;
 
@@ -3213,7 +3493,7 @@ static const XrHandTrackingAimFlagsFB XR_HAND_TRACKING_AIM_SYSTEM_GESTURE_BIT_FB
 static const XrHandTrackingAimFlagsFB XR_HAND_TRACKING_AIM_DOMINANT_HAND_BIT_FB = 0x00000080;
 static const XrHandTrackingAimFlagsFB XR_HAND_TRACKING_AIM_MENU_PRESSED_BIT_FB = 0x00000100;
 
-// XrHandTrackingAimStateFB extends XrHandJointsLocateInfoEXT
+// XrHandTrackingAimStateFB extends XrHandJointLocationsEXT
 typedef struct XrHandTrackingAimStateFB {
     XrStructureType             type;
     void* XR_MAY_ALIAS          next;
@@ -3229,24 +3509,131 @@ typedef struct XrHandTrackingAimStateFB {
 
 #define XR_FB_hand_tracking_capsules 1
 #define XR_HAND_TRACKING_CAPSULE_POINT_COUNT_FB 2
-#define XR_FB_HAND_TRACKING_CAPSULE_POINT_COUNT XR_HAND_TRACKING_CAPSULE_POINT_COUNT_FB
 #define XR_HAND_TRACKING_CAPSULE_COUNT_FB 19
-#define XR_FB_HAND_TRACKING_CAPSULE_COUNT XR_HAND_TRACKING_CAPSULE_COUNT_FB
-#define XR_FB_hand_tracking_capsules_SPEC_VERSION 2
+#define XR_FB_hand_tracking_capsules_SPEC_VERSION 3
 #define XR_FB_HAND_TRACKING_CAPSULES_EXTENSION_NAME "XR_FB_hand_tracking_capsules"
+#define XR_FB_HAND_TRACKING_CAPSULE_POINT_COUNT XR_HAND_TRACKING_CAPSULE_POINT_COUNT_FB
+#define XR_FB_HAND_TRACKING_CAPSULE_COUNT XR_HAND_TRACKING_CAPSULE_COUNT_FB
 typedef struct XrHandCapsuleFB {
-    XrVector3f        points[XR_FB_HAND_TRACKING_CAPSULE_POINT_COUNT];
+    XrVector3f        points[XR_HAND_TRACKING_CAPSULE_POINT_COUNT_FB];
     float             radius;
     XrHandJointEXT    joint;
 } XrHandCapsuleFB;
 
-// XrHandTrackingCapsulesStateFB extends XrHandJointsLocateInfoEXT
+// XrHandTrackingCapsulesStateFB extends XrHandJointLocationsEXT
 typedef struct XrHandTrackingCapsulesStateFB {
     XrStructureType       type;
     void* XR_MAY_ALIAS    next;
-    XrHandCapsuleFB       capsules[XR_FB_HAND_TRACKING_CAPSULE_COUNT];
+    XrHandCapsuleFB       capsules[XR_HAND_TRACKING_CAPSULE_COUNT_FB];
 } XrHandTrackingCapsulesStateFB;
 
+
+
+#define XR_FB_spatial_entity 1
+XR_DEFINE_ATOM(XrAsyncRequestIdFB)
+#define XR_UUID_SIZE_EXT                  16
+#define XR_FB_spatial_entity_SPEC_VERSION 2
+#define XR_FB_SPATIAL_ENTITY_EXTENSION_NAME "XR_FB_spatial_entity"
+
+typedef enum XrSpaceComponentTypeFB {
+    XR_SPACE_COMPONENT_TYPE_LOCATABLE_FB = 0,
+    XR_SPACE_COMPONENT_TYPE_STORABLE_FB = 1,
+    XR_SPACE_COMPONENT_TYPE_SHARABLE_FB = 2,
+    XR_SPACE_COMPONENT_TYPE_BOUNDED_2D_FB = 3,
+    XR_SPACE_COMPONENT_TYPE_BOUNDED_3D_FB = 4,
+    XR_SPACE_COMPONENT_TYPE_SEMANTIC_LABELS_FB = 5,
+    XR_SPACE_COMPONENT_TYPE_ROOM_LAYOUT_FB = 6,
+    XR_SPACE_COMPONENT_TYPE_SPACE_CONTAINER_FB = 7,
+    XR_SPACE_COMPONENT_TYPE_MAX_ENUM_FB = 0x7FFFFFFF
+} XrSpaceComponentTypeFB;
+// XrSystemSpatialEntityPropertiesFB extends XrSystemProperties
+typedef struct XrSystemSpatialEntityPropertiesFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrBool32                    supportsSpatialEntity;
+} XrSystemSpatialEntityPropertiesFB;
+
+typedef struct XrSpatialAnchorCreateInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrSpace                     space;
+    XrPosef                     poseInSpace;
+    XrTime                      time;
+} XrSpatialAnchorCreateInfoFB;
+
+typedef struct XrSpaceComponentStatusSetInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrSpaceComponentTypeFB      componentType;
+    XrBool32                    enabled;
+    XrDuration                  timeout;
+} XrSpaceComponentStatusSetInfoFB;
+
+typedef struct XrSpaceComponentStatusFB {
+    XrStructureType       type;
+    void* XR_MAY_ALIAS    next;
+    XrBool32              enabled;
+    XrBool32              changePending;
+} XrSpaceComponentStatusFB;
+
+typedef struct XrUuidEXT {
+    uint8_t    data[XR_UUID_SIZE_EXT];
+} XrUuidEXT;
+
+typedef struct XrEventDataSpatialAnchorCreateCompleteFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrAsyncRequestIdFB          requestId;
+    XrResult                    result;
+    XrSpace                     space;
+    XrUuidEXT                   uuid;
+} XrEventDataSpatialAnchorCreateCompleteFB;
+
+typedef struct XrEventDataSpaceSetStatusCompleteFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrAsyncRequestIdFB          requestId;
+    XrResult                    result;
+    XrSpace                     space;
+    XrUuidEXT                   uuid;
+    XrSpaceComponentTypeFB      componentType;
+    XrBool32                    enabled;
+} XrEventDataSpaceSetStatusCompleteFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrCreateSpatialAnchorFB)(XrSession session, const XrSpatialAnchorCreateInfoFB* info, XrAsyncRequestIdFB* requestId);
+typedef XrResult (XRAPI_PTR *PFN_xrGetSpaceUuidFB)(XrSpace space, XrUuidEXT* uuid);
+typedef XrResult (XRAPI_PTR *PFN_xrEnumerateSpaceSupportedComponentsFB)(XrSpace space, uint32_t componentTypeCapacityInput, uint32_t* componentTypeCountOutput, XrSpaceComponentTypeFB* componentTypes);
+typedef XrResult (XRAPI_PTR *PFN_xrSetSpaceComponentStatusFB)(XrSpace space, const XrSpaceComponentStatusSetInfoFB* info, XrAsyncRequestIdFB* requestId);
+typedef XrResult (XRAPI_PTR *PFN_xrGetSpaceComponentStatusFB)(XrSpace space, XrSpaceComponentTypeFB componentType, XrSpaceComponentStatusFB* status);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpatialAnchorFB(
+    XrSession                                   session,
+    const XrSpatialAnchorCreateInfoFB*          info,
+    XrAsyncRequestIdFB*                         requestId);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUuidFB(
+    XrSpace                                     space,
+    XrUuidEXT*                                  uuid);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateSpaceSupportedComponentsFB(
+    XrSpace                                     space,
+    uint32_t                                    componentTypeCapacityInput,
+    uint32_t*                                   componentTypeCountOutput,
+    XrSpaceComponentTypeFB*                     componentTypes);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrSetSpaceComponentStatusFB(
+    XrSpace                                     space,
+    const XrSpaceComponentStatusSetInfoFB*      info,
+    XrAsyncRequestIdFB*                         requestId);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceComponentStatusFB(
+    XrSpace                                     space,
+    XrSpaceComponentTypeFB                      componentType,
+    XrSpaceComponentStatusFB*                   status);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
 
 
 #define XR_FB_foveation 1
@@ -3390,7 +3777,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateKeyboardSpaceFB(
 
 #define XR_FB_triangle_mesh 1
 XR_DEFINE_HANDLE(XrTriangleMeshFB)
-#define XR_FB_triangle_mesh_SPEC_VERSION  1
+#define XR_FB_triangle_mesh_SPEC_VERSION  2
 #define XR_FB_TRIANGLE_MESH_EXTENSION_NAME "XR_FB_triangle_mesh"
 
 typedef enum XrWindingOrderFB {
@@ -3464,7 +3851,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrTriangleMeshEndVertexBufferUpdateFB(
 XR_DEFINE_HANDLE(XrPassthroughFB)
 XR_DEFINE_HANDLE(XrPassthroughLayerFB)
 XR_DEFINE_HANDLE(XrGeometryInstanceFB)
-#define XR_FB_passthrough_SPEC_VERSION    1
+#define XR_FB_passthrough_SPEC_VERSION    3
 #define XR_FB_PASSTHROUGH_EXTENSION_NAME  "XR_FB_passthrough"
 #define XR_PASSTHROUGH_COLOR_MAP_MONO_SIZE_FB 256
 
@@ -3472,12 +3859,21 @@ typedef enum XrPassthroughLayerPurposeFB {
     XR_PASSTHROUGH_LAYER_PURPOSE_RECONSTRUCTION_FB = 0,
     XR_PASSTHROUGH_LAYER_PURPOSE_PROJECTED_FB = 1,
     XR_PASSTHROUGH_LAYER_PURPOSE_TRACKED_KEYBOARD_HANDS_FB = 1000203001,
+    XR_PASSTHROUGH_LAYER_PURPOSE_TRACKED_KEYBOARD_MASKED_HANDS_FB = 1000203002,
     XR_PASSTHROUGH_LAYER_PURPOSE_MAX_ENUM_FB = 0x7FFFFFFF
 } XrPassthroughLayerPurposeFB;
+typedef XrFlags64 XrPassthroughCapabilityFlagsFB;
+
+// Flag bits for XrPassthroughCapabilityFlagsFB
+static const XrPassthroughCapabilityFlagsFB XR_PASSTHROUGH_CAPABILITY_BIT_FB = 0x00000001;
+static const XrPassthroughCapabilityFlagsFB XR_PASSTHROUGH_CAPABILITY_COLOR_BIT_FB = 0x00000002;
+static const XrPassthroughCapabilityFlagsFB XR_PASSTHROUGH_CAPABILITY_LAYER_DEPTH_BIT_FB = 0x00000004;
+
 typedef XrFlags64 XrPassthroughFlagsFB;
 
 // Flag bits for XrPassthroughFlagsFB
 static const XrPassthroughFlagsFB XR_PASSTHROUGH_IS_RUNNING_AT_CREATION_BIT_FB = 0x00000001;
+static const XrPassthroughFlagsFB XR_PASSTHROUGH_LAYER_DEPTH_BIT_FB = 0x00000002;
 
 typedef XrFlags64 XrPassthroughStateChangedFlagsFB;
 
@@ -3493,6 +3889,13 @@ typedef struct XrSystemPassthroughPropertiesFB {
     const void* XR_MAY_ALIAS    next;
     XrBool32                    supportsPassthrough;
 } XrSystemPassthroughPropertiesFB;
+
+// XrSystemPassthroughProperties2FB extends XrSystemProperties
+typedef struct XrSystemPassthroughProperties2FB {
+    XrStructureType                   type;
+    const void* XR_MAY_ALIAS          next;
+    XrPassthroughCapabilityFlagsFB    capabilities;
+} XrSystemPassthroughProperties2FB;
 
 typedef struct XrPassthroughCreateInfoFB {
     XrStructureType             type;
@@ -3543,17 +3946,28 @@ typedef struct XrPassthroughStyleFB {
     XrColor4f                   edgeColor;
 } XrPassthroughStyleFB;
 
+// XrPassthroughColorMapMonoToRgbaFB extends XrPassthroughStyleFB
 typedef struct XrPassthroughColorMapMonoToRgbaFB {
     XrStructureType             type;
     const void* XR_MAY_ALIAS    next;
     XrColor4f                   textureColorMap[XR_PASSTHROUGH_COLOR_MAP_MONO_SIZE_FB];
 } XrPassthroughColorMapMonoToRgbaFB;
 
+// XrPassthroughColorMapMonoToMonoFB extends XrPassthroughStyleFB
 typedef struct XrPassthroughColorMapMonoToMonoFB {
     XrStructureType             type;
     const void* XR_MAY_ALIAS    next;
     uint8_t                     textureColorMap[XR_PASSTHROUGH_COLOR_MAP_MONO_SIZE_FB];
 } XrPassthroughColorMapMonoToMonoFB;
+
+// XrPassthroughBrightnessContrastSaturationFB extends XrPassthroughStyleFB
+typedef struct XrPassthroughBrightnessContrastSaturationFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    float                       brightness;
+    float                       contrast;
+    float                       saturation;
+} XrPassthroughBrightnessContrastSaturationFB;
 
 typedef struct XrEventDataPassthroughStateChangedFB {
     XrStructureType                     type;
@@ -3628,12 +4042,14 @@ XRAPI_ATTR XrResult XRAPI_CALL xrGeometryInstanceSetTransformFB(
 #define XR_NULL_RENDER_MODEL_KEY_FB 0
 
 XR_DEFINE_ATOM(XrRenderModelKeyFB)
-#define XR_FB_render_model_SPEC_VERSION   1
+#define XR_FB_render_model_SPEC_VERSION   3
 #define XR_FB_RENDER_MODEL_EXTENSION_NAME "XR_FB_render_model"
 #define XR_MAX_RENDER_MODEL_NAME_SIZE_FB  64
 typedef XrFlags64 XrRenderModelFlagsFB;
 
 // Flag bits for XrRenderModelFlagsFB
+static const XrRenderModelFlagsFB XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_1_BIT_FB = 0x00000001;
+static const XrRenderModelFlagsFB XR_RENDER_MODEL_SUPPORTS_GLTF_2_0_SUBSET_2_BIT_FB = 0x00000002;
 
 typedef struct XrRenderModelPathInfoFB {
     XrStructureType       type;
@@ -3672,6 +4088,13 @@ typedef struct XrSystemRenderModelPropertiesFB {
     XrBool32              supportsRenderModelLoading;
 } XrSystemRenderModelPropertiesFB;
 
+// XrRenderModelCapabilitiesRequestFB extends XrSystemProperties
+typedef struct XrRenderModelCapabilitiesRequestFB {
+    XrStructureType         type;
+    void* XR_MAY_ALIAS      next;
+    XrRenderModelFlagsFB    flags;
+} XrRenderModelCapabilitiesRequestFB;
+
 typedef XrResult (XRAPI_PTR *PFN_xrEnumerateRenderModelPathsFB)(XrSession session, uint32_t pathCapacityInput, uint32_t* pathCountOutput, XrRenderModelPathInfoFB* paths);
 typedef XrResult (XRAPI_PTR *PFN_xrGetRenderModelPropertiesFB)(XrSession session, XrPath path, XrRenderModelPropertiesFB* properties);
 typedef XrResult (XRAPI_PTR *PFN_xrLoadRenderModelFB)(XrSession session, const XrRenderModelLoadInfoFB* info, XrRenderModelBufferFB* buffer);
@@ -3698,7 +4121,7 @@ XRAPI_ATTR XrResult XRAPI_CALL xrLoadRenderModelFB(
 
 
 #define XR_VARJO_foveated_rendering 1
-#define XR_VARJO_foveated_rendering_SPEC_VERSION 2
+#define XR_VARJO_foveated_rendering_SPEC_VERSION 3
 #define XR_VARJO_FOVEATED_RENDERING_EXTENSION_NAME "XR_VARJO_foveated_rendering"
 // XrViewLocateFoveatedRenderingVARJO extends XrViewLocateInfo
 typedef struct XrViewLocateFoveatedRenderingVARJO {
@@ -3776,7 +4199,7 @@ typedef struct XrMarkerSpaceCreateInfoVARJO {
     XrPosef                     poseInMarkerSpace;
 } XrMarkerSpaceCreateInfoVARJO;
 
-typedef XrResult (XRAPI_PTR *PFN_xrSetMarkerTrackingVARJO)(XrSession session, XrBool32 enabled);
+typedef XrResult  (XRAPI_PTR *PFN_xrSetMarkerTrackingVARJO)(XrSession session, XrBool32  enabled);
 typedef XrResult (XRAPI_PTR *PFN_xrSetMarkerTrackingTimeoutVARJO)(XrSession session, uint64_t markerId, XrDuration timeout);
 typedef XrResult (XRAPI_PTR *PFN_xrSetMarkerTrackingPredictionVARJO)(XrSession session, uint64_t markerId, XrBool32 enabled);
 typedef XrResult (XRAPI_PTR *PFN_xrGetMarkerSizeVARJO)(XrSession session, uint64_t markerId, XrExtent2Df* size);
@@ -3784,7 +4207,7 @@ typedef XrResult (XRAPI_PTR *PFN_xrCreateMarkerSpaceVARJO)(XrSession session, co
 
 #ifndef XR_NO_PROTOTYPES
 #ifdef XR_EXTENSION_PROTOTYPES
-XRAPI_ATTR XrResult XRAPI_CALL xrSetMarkerTrackingVARJO(
+XRAPI_ATTR XrResult  XRAPI_CALL xrSetMarkerTrackingVARJO(
     XrSession                                   session,
     XrBool32                                    enabled);
 
@@ -3809,6 +4232,62 @@ XRAPI_ATTR XrResult XRAPI_CALL xrCreateMarkerSpaceVARJO(
     XrSpace*                                    space);
 #endif /* XR_EXTENSION_PROTOTYPES */
 #endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_VARJO_view_offset 1
+#define XR_VARJO_view_offset_SPEC_VERSION 1
+#define XR_VARJO_VIEW_OFFSET_EXTENSION_NAME "XR_VARJO_view_offset"
+typedef XrResult  (XRAPI_PTR *PFN_xrSetViewOffsetVARJO)(XrSession session, float offset);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult  XRAPI_CALL xrSetViewOffsetVARJO(
+    XrSession                                   session,
+    float                                       offset);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_ML_ml2_controller_interaction 1
+#define XR_ML_ml2_controller_interaction_SPEC_VERSION 1
+#define XR_ML_ML2_CONTROLLER_INTERACTION_EXTENSION_NAME "XR_ML_ml2_controller_interaction"
+
+
+#define XR_ML_frame_end_info 1
+#define XR_ML_frame_end_info_SPEC_VERSION 1
+#define XR_ML_FRAME_END_INFO_EXTENSION_NAME "XR_ML_frame_end_info"
+typedef XrFlags64 XrFrameEndInfoFlagsML;
+
+// Flag bits for XrFrameEndInfoFlagsML
+static const XrFrameEndInfoFlagsML XR_FRAME_END_INFO_PROTECTED_BIT_ML = 0x00000001;
+static const XrFrameEndInfoFlagsML XR_FRAME_END_INFO_VIGNETTE_BIT_ML = 0x00000002;
+
+// XrFrameEndInfoML extends XrFrameEndInfo
+typedef struct XrFrameEndInfoML {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    float                       focusDistance;
+    XrFrameEndInfoFlagsML       flags;
+} XrFrameEndInfoML;
+
+
+
+#define XR_ML_global_dimmer 1
+#define XR_ML_global_dimmer_SPEC_VERSION  1
+#define XR_ML_GLOBAL_DIMMER_EXTENSION_NAME "XR_ML_global_dimmer"
+typedef XrFlags64 XrGlobalDimmerFrameEndInfoFlagsML;
+
+// Flag bits for XrGlobalDimmerFrameEndInfoFlagsML
+static const XrGlobalDimmerFrameEndInfoFlagsML XR_GLOBAL_DIMMER_FRAME_END_INFO_ENABLED_BIT_ML = 0x00000001;
+
+// XrGlobalDimmerFrameEndInfoML extends XrFrameEndInfo
+typedef struct XrGlobalDimmerFrameEndInfoML {
+    XrStructureType                      type;
+    const void* XR_MAY_ALIAS             next;
+    float                                dimmerValue;
+    XrGlobalDimmerFrameEndInfoFlagsML    flags;
+} XrGlobalDimmerFrameEndInfoML;
+
 
 
 #define XR_MSFT_spatial_anchor_persistence 1
@@ -3839,7 +4318,7 @@ typedef XrResult (XRAPI_PTR *PFN_xrDestroySpatialAnchorStoreConnectionMSFT)(XrSp
 typedef XrResult (XRAPI_PTR *PFN_xrPersistSpatialAnchorMSFT)(XrSpatialAnchorStoreConnectionMSFT spatialAnchorStore, const XrSpatialAnchorPersistenceInfoMSFT* spatialAnchorPersistenceInfo);
 typedef XrResult (XRAPI_PTR *PFN_xrEnumeratePersistedSpatialAnchorNamesMSFT)(XrSpatialAnchorStoreConnectionMSFT spatialAnchorStore, uint32_t spatialAnchorNamesCapacityInput, uint32_t* spatialAnchorNamesCountOutput, XrSpatialAnchorPersistenceNameMSFT* persistedAnchorNames);
 typedef XrResult (XRAPI_PTR *PFN_xrCreateSpatialAnchorFromPersistedNameMSFT)(XrSession session, const XrSpatialAnchorFromPersistedAnchorCreateInfoMSFT* spatialAnchorCreateInfo, XrSpatialAnchorMSFT* spatialAnchor);
-typedef XrResult (XRAPI_PTR *PFN_xrUnpersistSpatialAnchorMSFT)(XrSpatialAnchorStoreConnectionMSFT spatialAnchorStore, const XrSpatialAnchorPersistenceNameMSFT* spatialAnchorPersistenceName);
+typedef XrResult (XRAPI_PTR *PFN_xrUnpersistSpatialAnchorMSFT)(XrSpatialAnchorStoreConnectionMSFT        spatialAnchorStore, const XrSpatialAnchorPersistenceNameMSFT* spatialAnchorPersistenceName);
 typedef XrResult (XRAPI_PTR *PFN_xrClearSpatialAnchorStoreMSFT)(XrSpatialAnchorStoreConnectionMSFT spatialAnchorStore);
 
 #ifndef XR_NO_PROTOTYPES
@@ -3876,12 +4355,250 @@ XRAPI_ATTR XrResult XRAPI_CALL xrClearSpatialAnchorStoreMSFT(
 #endif /* !XR_NO_PROTOTYPES */
 
 
+#define XR_ULTRALEAP_hand_tracking_forearm 1
+
+#define XR_HAND_FOREARM_JOINT_COUNT_ULTRALEAP 27
+
+#define XR_ULTRALEAP_hand_tracking_forearm_SPEC_VERSION 1
+#define XR_ULTRALEAP_HAND_TRACKING_FOREARM_EXTENSION_NAME "XR_ULTRALEAP_hand_tracking_forearm"
+
+typedef enum XrHandForearmJointULTRALEAP {
+    XR_HAND_FOREARM_JOINT_PALM_ULTRALEAP = 0,
+    XR_HAND_FOREARM_JOINT_WRIST_ULTRALEAP = 1,
+    XR_HAND_FOREARM_JOINT_THUMB_METACARPAL_ULTRALEAP = 2,
+    XR_HAND_FOREARM_JOINT_THUMB_PROXIMAL_ULTRALEAP = 3,
+    XR_HAND_FOREARM_JOINT_THUMB_DISTAL_ULTRALEAP = 4,
+    XR_HAND_FOREARM_JOINT_THUMB_TIP_ULTRALEAP = 5,
+    XR_HAND_FOREARM_JOINT_INDEX_METACARPAL_ULTRALEAP = 6,
+    XR_HAND_FOREARM_JOINT_INDEX_PROXIMAL_ULTRALEAP = 7,
+    XR_HAND_FOREARM_JOINT_INDEX_INTERMEDIATE_ULTRALEAP = 8,
+    XR_HAND_FOREARM_JOINT_INDEX_DISTAL_ULTRALEAP = 9,
+    XR_HAND_FOREARM_JOINT_INDEX_TIP_ULTRALEAP = 10,
+    XR_HAND_FOREARM_JOINT_MIDDLE_METACARPAL_ULTRALEAP = 11,
+    XR_HAND_FOREARM_JOINT_MIDDLE_PROXIMAL_ULTRALEAP = 12,
+    XR_HAND_FOREARM_JOINT_MIDDLE_INTERMEDIATE_ULTRALEAP = 13,
+    XR_HAND_FOREARM_JOINT_MIDDLE_DISTAL_ULTRALEAP = 14,
+    XR_HAND_FOREARM_JOINT_MIDDLE_TIP_ULTRALEAP = 15,
+    XR_HAND_FOREARM_JOINT_RING_METACARPAL_ULTRALEAP = 16,
+    XR_HAND_FOREARM_JOINT_RING_PROXIMAL_ULTRALEAP = 17,
+    XR_HAND_FOREARM_JOINT_RING_INTERMEDIATE_ULTRALEAP = 18,
+    XR_HAND_FOREARM_JOINT_RING_DISTAL_ULTRALEAP = 19,
+    XR_HAND_FOREARM_JOINT_RING_TIP_ULTRALEAP = 20,
+    XR_HAND_FOREARM_JOINT_LITTLE_METACARPAL_ULTRALEAP = 21,
+    XR_HAND_FOREARM_JOINT_LITTLE_PROXIMAL_ULTRALEAP = 22,
+    XR_HAND_FOREARM_JOINT_LITTLE_INTERMEDIATE_ULTRALEAP = 23,
+    XR_HAND_FOREARM_JOINT_LITTLE_DISTAL_ULTRALEAP = 24,
+    XR_HAND_FOREARM_JOINT_LITTLE_TIP_ULTRALEAP = 25,
+    XR_HAND_FOREARM_JOINT_ELBOW_ULTRALEAP = 26,
+    XR_HAND_FOREARM_JOINT_MAX_ENUM_ULTRALEAP = 0x7FFFFFFF
+} XrHandForearmJointULTRALEAP;
+
+
+#define XR_FB_spatial_entity_query 1
+#define XR_FB_spatial_entity_query_SPEC_VERSION 1
+#define XR_FB_SPATIAL_ENTITY_QUERY_EXTENSION_NAME "XR_FB_spatial_entity_query"
+
+typedef enum XrSpaceQueryActionFB {
+    XR_SPACE_QUERY_ACTION_LOAD_FB = 0,
+    XR_SPACE_QUERY_ACTION_MAX_ENUM_FB = 0x7FFFFFFF
+} XrSpaceQueryActionFB;
+
+typedef enum XrSpaceStorageLocationFB {
+    XR_SPACE_STORAGE_LOCATION_INVALID_FB = 0,
+    XR_SPACE_STORAGE_LOCATION_LOCAL_FB = 1,
+    XR_SPACE_STORAGE_LOCATION_CLOUD_FB = 2,
+    XR_SPACE_STORAGE_LOCATION_MAX_ENUM_FB = 0x7FFFFFFF
+} XrSpaceStorageLocationFB;
+typedef struct XR_MAY_ALIAS XrSpaceQueryInfoBaseHeaderFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+} XrSpaceQueryInfoBaseHeaderFB;
+
+typedef struct XR_MAY_ALIAS XrSpaceFilterInfoBaseHeaderFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+} XrSpaceFilterInfoBaseHeaderFB;
+
+typedef struct XrSpaceQueryInfoFB {
+    XrStructureType                         type;
+    const void* XR_MAY_ALIAS                next;
+    XrSpaceQueryActionFB                    queryAction;
+    uint32_t                                maxResultCount;
+    XrDuration                              timeout;
+    const XrSpaceFilterInfoBaseHeaderFB*    filter;
+    const XrSpaceFilterInfoBaseHeaderFB*    excludeFilter;
+} XrSpaceQueryInfoFB;
+
+// XrSpaceStorageLocationFilterInfoFB extends XrSpaceFilterInfoBaseHeaderFB
+typedef struct XrSpaceStorageLocationFilterInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrSpaceStorageLocationFB    location;
+} XrSpaceStorageLocationFilterInfoFB;
+
+typedef struct XrSpaceUuidFilterInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    uint32_t                    uuidCount;
+    XrUuidEXT*                  uuids;
+} XrSpaceUuidFilterInfoFB;
+
+typedef struct XrSpaceComponentFilterInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrSpaceComponentTypeFB      componentType;
+} XrSpaceComponentFilterInfoFB;
+
+typedef struct XrSpaceQueryResultFB {
+    XrSpace      space;
+    XrUuidEXT    uuid;
+} XrSpaceQueryResultFB;
+
+typedef struct XrSpaceQueryResultsFB {
+    XrStructureType          type;
+    void* XR_MAY_ALIAS       next;
+    uint32_t                 resultCapacityInput;
+    uint32_t                 resultCountOutput;
+    XrSpaceQueryResultFB*    results;
+} XrSpaceQueryResultsFB;
+
+typedef struct XrEventDataSpaceQueryResultsAvailableFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrAsyncRequestIdFB          requestId;
+} XrEventDataSpaceQueryResultsAvailableFB;
+
+typedef struct XrEventDataSpaceQueryCompleteFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrAsyncRequestIdFB          requestId;
+    XrResult                    result;
+} XrEventDataSpaceQueryCompleteFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrQuerySpacesFB)(XrSession session, const XrSpaceQueryInfoBaseHeaderFB* info, XrAsyncRequestIdFB* requestId);
+typedef XrResult (XRAPI_PTR *PFN_xrRetrieveSpaceQueryResultsFB)(XrSession session, XrAsyncRequestIdFB requestId, XrSpaceQueryResultsFB* results);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrQuerySpacesFB(
+    XrSession                                   session,
+    const XrSpaceQueryInfoBaseHeaderFB*         info,
+    XrAsyncRequestIdFB*                         requestId);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrRetrieveSpaceQueryResultsFB(
+    XrSession                                   session,
+    XrAsyncRequestIdFB                          requestId,
+    XrSpaceQueryResultsFB*                      results);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_FB_spatial_entity_storage 1
+#define XR_FB_spatial_entity_storage_SPEC_VERSION 1
+#define XR_FB_SPATIAL_ENTITY_STORAGE_EXTENSION_NAME "XR_FB_spatial_entity_storage"
+
+typedef enum XrSpacePersistenceModeFB {
+    XR_SPACE_PERSISTENCE_MODE_INVALID_FB = 0,
+    XR_SPACE_PERSISTENCE_MODE_INDEFINITE_FB = 1,
+    XR_SPACE_PERSISTENCE_MODE_MAX_ENUM_FB = 0x7FFFFFFF
+} XrSpacePersistenceModeFB;
+typedef struct XrSpaceSaveInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrSpace                     space;
+    XrSpaceStorageLocationFB    location;
+    XrSpacePersistenceModeFB    persistenceMode;
+} XrSpaceSaveInfoFB;
+
+typedef struct XrSpaceEraseInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrSpace                     space;
+    XrSpaceStorageLocationFB    location;
+} XrSpaceEraseInfoFB;
+
+typedef struct XrEventDataSpaceSaveCompleteFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrAsyncRequestIdFB          requestId;
+    XrResult                    result;
+    XrSpace                     space;
+    XrUuidEXT                   uuid;
+    XrSpaceStorageLocationFB    location;
+} XrEventDataSpaceSaveCompleteFB;
+
+typedef struct XrEventDataSpaceEraseCompleteFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrAsyncRequestIdFB          requestId;
+    XrResult                    result;
+    XrSpace                     space;
+    XrUuidEXT                   uuid;
+    XrSpaceStorageLocationFB    location;
+} XrEventDataSpaceEraseCompleteFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrSaveSpaceFB)(XrSession session, const XrSpaceSaveInfoFB* info, XrAsyncRequestIdFB* requestId);
+typedef XrResult (XRAPI_PTR *PFN_xrEraseSpaceFB)(XrSession session, const XrSpaceEraseInfoFB* info, XrAsyncRequestIdFB* requestId);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceFB(
+    XrSession                                   session,
+    const XrSpaceSaveInfoFB*                    info,
+    XrAsyncRequestIdFB*                         requestId);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrEraseSpaceFB(
+    XrSession                                   session,
+    const XrSpaceEraseInfoFB*                   info,
+    XrAsyncRequestIdFB*                         requestId);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_FB_touch_controller_pro 1
+#define XR_FB_touch_controller_pro_SPEC_VERSION 1
+#define XR_FB_TOUCH_CONTROLLER_PRO_EXTENSION_NAME "XR_FB_touch_controller_pro"
+
+
+#define XR_FB_spatial_entity_sharing 1
+XR_DEFINE_HANDLE(XrSpaceUserFB)
+#define XR_FB_spatial_entity_sharing_SPEC_VERSION 1
+#define XR_FB_SPATIAL_ENTITY_SHARING_EXTENSION_NAME "XR_FB_spatial_entity_sharing"
+typedef struct XrSpaceShareInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    uint32_t                    spaceCount;
+    XrSpace*                    spaces;
+    uint32_t                    userCount;
+    XrSpaceUserFB*              users;
+} XrSpaceShareInfoFB;
+
+typedef struct XrEventDataSpaceShareCompleteFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrAsyncRequestIdFB          requestId;
+    XrResult                    result;
+} XrEventDataSpaceShareCompleteFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrShareSpacesFB)(XrSession session, const XrSpaceShareInfoFB* info, XrAsyncRequestIdFB* requestId);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrShareSpacesFB(
+    XrSession                                   session,
+    const XrSpaceShareInfoFB*                   info,
+    XrAsyncRequestIdFB*                         requestId);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
 #define XR_FB_space_warp 1
-#define XR_FB_space_warp_SPEC_VERSION     1
+#define XR_FB_space_warp_SPEC_VERSION     2
 #define XR_FB_SPACE_WARP_EXTENSION_NAME   "XR_FB_space_warp"
 typedef XrFlags64 XrCompositionLayerSpaceWarpInfoFlagsFB;
 
 // Flag bits for XrCompositionLayerSpaceWarpInfoFlagsFB
+static const XrCompositionLayerSpaceWarpInfoFlagsFB XR_COMPOSITION_LAYER_SPACE_WARP_INFO_FRAME_SKIP_BIT_FB = 0x00000001;
 
 // XrCompositionLayerSpaceWarpInfoFB extends XrCompositionLayerProjectionView
 typedef struct XrCompositionLayerSpaceWarpInfoFB {
@@ -3905,6 +4622,109 @@ typedef struct XrSystemSpaceWarpPropertiesFB {
     uint32_t              recommendedMotionVectorImageRectHeight;
 } XrSystemSpaceWarpPropertiesFB;
 
+
+
+#define XR_FB_haptic_amplitude_envelope 1
+
+#define XR_MAX_HAPTIC_AMPLITUDE_ENVELOPE_SAMPLES_FB 4000u
+
+#define XR_FB_haptic_amplitude_envelope_SPEC_VERSION 1
+#define XR_FB_HAPTIC_AMPLITUDE_ENVELOPE_EXTENSION_NAME "XR_FB_haptic_amplitude_envelope"
+typedef struct XrHapticAmplitudeEnvelopeVibrationFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrDuration                  duration;
+    uint32_t                    amplitudeCount;
+    const float*                amplitudes;
+} XrHapticAmplitudeEnvelopeVibrationFB;
+
+
+
+#define XR_FB_scene 1
+#define XR_FB_scene_SPEC_VERSION          1
+#define XR_FB_SCENE_EXTENSION_NAME        "XR_FB_scene"
+typedef struct XrExtent3DfFB {
+    float    width;
+    float    height;
+    float    depth;
+} XrExtent3DfFB;
+
+typedef struct XrOffset3DfFB {
+    float    x;
+    float    y;
+    float    z;
+} XrOffset3DfFB;
+
+typedef struct XrRect3DfFB {
+    XrOffset3DfFB    offset;
+    XrExtent3DfFB    extent;
+} XrRect3DfFB;
+
+typedef struct XrSemanticLabelsFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    uint32_t                    bufferCapacityInput;
+    uint32_t                    bufferCountOutput;
+    char*                       buffer;
+} XrSemanticLabelsFB;
+
+typedef struct XrRoomLayoutFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrUuidEXT                   floorUuid;
+    XrUuidEXT                   ceilingUuid;
+    uint32_t                    wallUuidCapacityInput;
+    uint32_t                    wallUuidCountOutput;
+    XrUuidEXT*                  wallUuids;
+} XrRoomLayoutFB;
+
+typedef struct XrBoundary2DFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    uint32_t                    vertexCapacityInput;
+    uint32_t                    vertexCountOutput;
+    XrVector2f*                 vertices;
+} XrBoundary2DFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrGetSpaceBoundingBox2DFB)(XrSession session, XrSpace space, XrRect2Df* boundingBox2DOutput);
+typedef XrResult (XRAPI_PTR *PFN_xrGetSpaceBoundingBox3DFB)(XrSession session, XrSpace space, XrRect3DfFB* boundingBox3DOutput);
+typedef XrResult (XRAPI_PTR *PFN_xrGetSpaceSemanticLabelsFB)(XrSession session, XrSpace space, XrSemanticLabelsFB* semanticLabelsOutput);
+typedef XrResult (XRAPI_PTR *PFN_xrGetSpaceBoundary2DFB)(XrSession session, XrSpace space, XrBoundary2DFB* boundary2DOutput);
+typedef XrResult (XRAPI_PTR *PFN_xrGetSpaceRoomLayoutFB)(XrSession session, XrSpace space, XrRoomLayoutFB* roomLayoutOutput);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox2DFB(
+    XrSession                                   session,
+    XrSpace                                     space,
+    XrRect2Df*                                  boundingBox2DOutput);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundingBox3DFB(
+    XrSession                                   session,
+    XrSpace                                     space,
+    XrRect3DfFB*                                boundingBox3DOutput);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceSemanticLabelsFB(
+    XrSession                                   session,
+    XrSpace                                     space,
+    XrSemanticLabelsFB*                         semanticLabelsOutput);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceBoundary2DFB(
+    XrSession                                   session,
+    XrSpace                                     space,
+    XrBoundary2DFB*                             boundary2DOutput);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceRoomLayoutFB(
+    XrSession                                   session,
+    XrSpace                                     space,
+    XrRoomLayoutFB*                             roomLayoutOutput);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_EXT_palm_pose 1
+#define XR_EXT_palm_pose_SPEC_VERSION     2
+#define XR_EXT_PALM_POSE_EXTENSION_NAME   "XR_EXT_palm_pose"
 
 
 #define XR_ALMALENCE_digital_lens_control 1
@@ -3932,8 +4752,314 @@ XRAPI_ATTR XrResult XRAPI_CALL xrSetDigitalLensControlALMALENCE(
 #endif /* !XR_NO_PROTOTYPES */
 
 
+#define XR_FB_scene_capture 1
+#define XR_FB_scene_capture_SPEC_VERSION  1
+#define XR_FB_SCENE_CAPTURE_EXTENSION_NAME "XR_FB_scene_capture"
+typedef struct XrEventDataSceneCaptureCompleteFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrAsyncRequestIdFB          requestId;
+    XrResult                    result;
+} XrEventDataSceneCaptureCompleteFB;
+
+typedef struct XrSceneCaptureRequestInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    uint32_t                    requestByteCount;
+    const char*                 request;
+} XrSceneCaptureRequestInfoFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrRequestSceneCaptureFB)(XrSession session, const XrSceneCaptureRequestInfoFB* info, XrAsyncRequestIdFB* requestId);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrRequestSceneCaptureFB(
+    XrSession                                   session,
+    const XrSceneCaptureRequestInfoFB*          info,
+    XrAsyncRequestIdFB*                         requestId);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_FB_spatial_entity_container 1
+#define XR_FB_spatial_entity_container_SPEC_VERSION 2
+#define XR_FB_SPATIAL_ENTITY_CONTAINER_EXTENSION_NAME "XR_FB_spatial_entity_container"
+typedef struct XrSpaceContainerFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    uint32_t                    uuidCapacityInput;
+    uint32_t                    uuidCountOutput;
+    XrUuidEXT*                  uuids;
+} XrSpaceContainerFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrGetSpaceContainerFB)(XrSession session, XrSpace space, XrSpaceContainerFB* spaceContainerOutput);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceContainerFB(
+    XrSession                                   session,
+    XrSpace                                     space,
+    XrSpaceContainerFB*                         spaceContainerOutput);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_META_foveation_eye_tracked 1
+#define XR_FOVEATION_CENTER_SIZE_META     2
+#define XR_META_foveation_eye_tracked_SPEC_VERSION 1
+#define XR_META_FOVEATION_EYE_TRACKED_EXTENSION_NAME "XR_META_foveation_eye_tracked"
+typedef XrFlags64 XrFoveationEyeTrackedProfileCreateFlagsMETA;
+
+// Flag bits for XrFoveationEyeTrackedProfileCreateFlagsMETA
+
+typedef XrFlags64 XrFoveationEyeTrackedStateFlagsMETA;
+
+// Flag bits for XrFoveationEyeTrackedStateFlagsMETA
+static const XrFoveationEyeTrackedStateFlagsMETA XR_FOVEATION_EYE_TRACKED_STATE_VALID_BIT_META = 0x00000001;
+
+// XrFoveationEyeTrackedProfileCreateInfoMETA extends XrFoveationLevelProfileCreateInfoFB
+typedef struct XrFoveationEyeTrackedProfileCreateInfoMETA {
+    XrStructureType                                type;
+    const void* XR_MAY_ALIAS                       next;
+    XrFoveationEyeTrackedProfileCreateFlagsMETA    flags;
+} XrFoveationEyeTrackedProfileCreateInfoMETA;
+
+typedef struct XrFoveationEyeTrackedStateMETA {
+    XrStructureType                        type;
+    void* XR_MAY_ALIAS                     next;
+    XrVector2f                             foveationCenter[XR_FOVEATION_CENTER_SIZE_META];
+    XrFoveationEyeTrackedStateFlagsMETA    flags;
+} XrFoveationEyeTrackedStateMETA;
+
+// XrSystemFoveationEyeTrackedPropertiesMETA extends XrSystemProperties
+typedef struct XrSystemFoveationEyeTrackedPropertiesMETA {
+    XrStructureType       type;
+    void* XR_MAY_ALIAS    next;
+    XrBool32              supportsFoveationEyeTracked;
+} XrSystemFoveationEyeTrackedPropertiesMETA;
+
+typedef XrResult (XRAPI_PTR *PFN_xrGetFoveationEyeTrackedStateMETA)(XrSession session, XrFoveationEyeTrackedStateMETA* foveationState);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFoveationEyeTrackedStateMETA(
+    XrSession                                   session,
+    XrFoveationEyeTrackedStateMETA*             foveationState);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_FB_face_tracking 1
+
+#define XR_FACE_EXPRESSSION_SET_DEFAULT_FB XR_FACE_EXPRESSION_SET_DEFAULT_FB
+
+XR_DEFINE_HANDLE(XrFaceTrackerFB)
+#define XR_FB_face_tracking_SPEC_VERSION  1
+#define XR_FB_FACE_TRACKING_EXTENSION_NAME "XR_FB_face_tracking"
+
+typedef enum XrFaceExpressionFB {
+    XR_FACE_EXPRESSION_BROW_LOWERER_L_FB = 0,
+    XR_FACE_EXPRESSION_BROW_LOWERER_R_FB = 1,
+    XR_FACE_EXPRESSION_CHEEK_PUFF_L_FB = 2,
+    XR_FACE_EXPRESSION_CHEEK_PUFF_R_FB = 3,
+    XR_FACE_EXPRESSION_CHEEK_RAISER_L_FB = 4,
+    XR_FACE_EXPRESSION_CHEEK_RAISER_R_FB = 5,
+    XR_FACE_EXPRESSION_CHEEK_SUCK_L_FB = 6,
+    XR_FACE_EXPRESSION_CHEEK_SUCK_R_FB = 7,
+    XR_FACE_EXPRESSION_CHIN_RAISER_B_FB = 8,
+    XR_FACE_EXPRESSION_CHIN_RAISER_T_FB = 9,
+    XR_FACE_EXPRESSION_DIMPLER_L_FB = 10,
+    XR_FACE_EXPRESSION_DIMPLER_R_FB = 11,
+    XR_FACE_EXPRESSION_EYES_CLOSED_L_FB = 12,
+    XR_FACE_EXPRESSION_EYES_CLOSED_R_FB = 13,
+    XR_FACE_EXPRESSION_EYES_LOOK_DOWN_L_FB = 14,
+    XR_FACE_EXPRESSION_EYES_LOOK_DOWN_R_FB = 15,
+    XR_FACE_EXPRESSION_EYES_LOOK_LEFT_L_FB = 16,
+    XR_FACE_EXPRESSION_EYES_LOOK_LEFT_R_FB = 17,
+    XR_FACE_EXPRESSION_EYES_LOOK_RIGHT_L_FB = 18,
+    XR_FACE_EXPRESSION_EYES_LOOK_RIGHT_R_FB = 19,
+    XR_FACE_EXPRESSION_EYES_LOOK_UP_L_FB = 20,
+    XR_FACE_EXPRESSION_EYES_LOOK_UP_R_FB = 21,
+    XR_FACE_EXPRESSION_INNER_BROW_RAISER_L_FB = 22,
+    XR_FACE_EXPRESSION_INNER_BROW_RAISER_R_FB = 23,
+    XR_FACE_EXPRESSION_JAW_DROP_FB = 24,
+    XR_FACE_EXPRESSION_JAW_SIDEWAYS_LEFT_FB = 25,
+    XR_FACE_EXPRESSION_JAW_SIDEWAYS_RIGHT_FB = 26,
+    XR_FACE_EXPRESSION_JAW_THRUST_FB = 27,
+    XR_FACE_EXPRESSION_LID_TIGHTENER_L_FB = 28,
+    XR_FACE_EXPRESSION_LID_TIGHTENER_R_FB = 29,
+    XR_FACE_EXPRESSION_LIP_CORNER_DEPRESSOR_L_FB = 30,
+    XR_FACE_EXPRESSION_LIP_CORNER_DEPRESSOR_R_FB = 31,
+    XR_FACE_EXPRESSION_LIP_CORNER_PULLER_L_FB = 32,
+    XR_FACE_EXPRESSION_LIP_CORNER_PULLER_R_FB = 33,
+    XR_FACE_EXPRESSION_LIP_FUNNELER_LB_FB = 34,
+    XR_FACE_EXPRESSION_LIP_FUNNELER_LT_FB = 35,
+    XR_FACE_EXPRESSION_LIP_FUNNELER_RB_FB = 36,
+    XR_FACE_EXPRESSION_LIP_FUNNELER_RT_FB = 37,
+    XR_FACE_EXPRESSION_LIP_PRESSOR_L_FB = 38,
+    XR_FACE_EXPRESSION_LIP_PRESSOR_R_FB = 39,
+    XR_FACE_EXPRESSION_LIP_PUCKER_L_FB = 40,
+    XR_FACE_EXPRESSION_LIP_PUCKER_R_FB = 41,
+    XR_FACE_EXPRESSION_LIP_STRETCHER_L_FB = 42,
+    XR_FACE_EXPRESSION_LIP_STRETCHER_R_FB = 43,
+    XR_FACE_EXPRESSION_LIP_SUCK_LB_FB = 44,
+    XR_FACE_EXPRESSION_LIP_SUCK_LT_FB = 45,
+    XR_FACE_EXPRESSION_LIP_SUCK_RB_FB = 46,
+    XR_FACE_EXPRESSION_LIP_SUCK_RT_FB = 47,
+    XR_FACE_EXPRESSION_LIP_TIGHTENER_L_FB = 48,
+    XR_FACE_EXPRESSION_LIP_TIGHTENER_R_FB = 49,
+    XR_FACE_EXPRESSION_LIPS_TOWARD_FB = 50,
+    XR_FACE_EXPRESSION_LOWER_LIP_DEPRESSOR_L_FB = 51,
+    XR_FACE_EXPRESSION_LOWER_LIP_DEPRESSOR_R_FB = 52,
+    XR_FACE_EXPRESSION_MOUTH_LEFT_FB = 53,
+    XR_FACE_EXPRESSION_MOUTH_RIGHT_FB = 54,
+    XR_FACE_EXPRESSION_NOSE_WRINKLER_L_FB = 55,
+    XR_FACE_EXPRESSION_NOSE_WRINKLER_R_FB = 56,
+    XR_FACE_EXPRESSION_OUTER_BROW_RAISER_L_FB = 57,
+    XR_FACE_EXPRESSION_OUTER_BROW_RAISER_R_FB = 58,
+    XR_FACE_EXPRESSION_UPPER_LID_RAISER_L_FB = 59,
+    XR_FACE_EXPRESSION_UPPER_LID_RAISER_R_FB = 60,
+    XR_FACE_EXPRESSION_UPPER_LIP_RAISER_L_FB = 61,
+    XR_FACE_EXPRESSION_UPPER_LIP_RAISER_R_FB = 62,
+    XR_FACE_EXPRESSION_COUNT_FB = 63,
+    XR_FACE_EXPRESSION_MAX_ENUM_FB = 0x7FFFFFFF
+} XrFaceExpressionFB;
+
+typedef enum XrFaceExpressionSetFB {
+    XR_FACE_EXPRESSION_SET_DEFAULT_FB = 0,
+    XR_FACE_EXPRESSION_SET_MAX_ENUM_FB = 0x7FFFFFFF
+} XrFaceExpressionSetFB;
+
+typedef enum XrFaceConfidenceFB {
+    XR_FACE_CONFIDENCE_LOWER_FACE_FB = 0,
+    XR_FACE_CONFIDENCE_UPPER_FACE_FB = 1,
+    XR_FACE_CONFIDENCE_COUNT_FB = 2,
+    XR_FACE_CONFIDENCE_MAX_ENUM_FB = 0x7FFFFFFF
+} XrFaceConfidenceFB;
+// XrSystemFaceTrackingPropertiesFB extends XrSystemProperties
+typedef struct XrSystemFaceTrackingPropertiesFB {
+    XrStructureType       type;
+    void* XR_MAY_ALIAS    next;
+    XrBool32              supportsFaceTracking;
+} XrSystemFaceTrackingPropertiesFB;
+
+typedef struct XrFaceTrackerCreateInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrFaceExpressionSetFB       faceExpressionSet;
+} XrFaceTrackerCreateInfoFB;
+
+typedef struct XrFaceExpressionInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrTime                      time;
+} XrFaceExpressionInfoFB;
+
+typedef struct XrFaceExpressionStatusFB {
+    XrBool32    isValid;
+    XrBool32    isEyeFollowingBlendshapesValid;
+} XrFaceExpressionStatusFB;
+
+typedef struct XrFaceExpressionWeightsFB {
+    XrStructureType             type;
+    void* XR_MAY_ALIAS          next;
+    uint32_t                    weightCount;
+    float*                      weights;
+    uint32_t                    confidenceCount;
+    float*                      confidences;
+    XrFaceExpressionStatusFB    status;
+    XrTime                      time;
+} XrFaceExpressionWeightsFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrCreateFaceTrackerFB)(XrSession session, const XrFaceTrackerCreateInfoFB* createInfo, XrFaceTrackerFB* faceTracker);
+typedef XrResult (XRAPI_PTR *PFN_xrDestroyFaceTrackerFB)(XrFaceTrackerFB faceTracker);
+typedef XrResult (XRAPI_PTR *PFN_xrGetFaceExpressionWeightsFB)(XrFaceTrackerFB faceTracker, const XrFaceExpressionInfoFB* expressionInfo, XrFaceExpressionWeightsFB* expressionWeights);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateFaceTrackerFB(
+    XrSession                                   session,
+    const XrFaceTrackerCreateInfoFB*            createInfo,
+    XrFaceTrackerFB*                            faceTracker);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyFaceTrackerFB(
+    XrFaceTrackerFB                             faceTracker);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetFaceExpressionWeightsFB(
+    XrFaceTrackerFB                             faceTracker,
+    const XrFaceExpressionInfoFB*               expressionInfo,
+    XrFaceExpressionWeightsFB*                  expressionWeights);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_FB_eye_tracking_social 1
+XR_DEFINE_HANDLE(XrEyeTrackerFB)
+#define XR_FB_eye_tracking_social_SPEC_VERSION 1
+#define XR_FB_EYE_TRACKING_SOCIAL_EXTENSION_NAME "XR_FB_eye_tracking_social"
+
+typedef enum XrEyePositionFB {
+    XR_EYE_POSITION_LEFT_FB = 0,
+    XR_EYE_POSITION_RIGHT_FB = 1,
+    XR_EYE_POSITION_COUNT_FB = 2,
+    XR_EYE_POSITION_MAX_ENUM_FB = 0x7FFFFFFF
+} XrEyePositionFB;
+typedef struct XrEyeGazeFB {
+    XrBool32    isValid;
+    XrPosef     gazePose;
+    float       gazeConfidence;
+} XrEyeGazeFB;
+
+typedef struct XrEyeTrackerCreateInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+} XrEyeTrackerCreateInfoFB;
+
+typedef struct XrEyeGazesInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrSpace                     baseSpace;
+    XrTime                      time;
+} XrEyeGazesInfoFB;
+
+// XrSystemEyeTrackingPropertiesFB extends XrSystemProperties
+typedef struct XrSystemEyeTrackingPropertiesFB {
+    XrStructureType       type;
+    void* XR_MAY_ALIAS    next;
+    XrBool32              supportsEyeTracking;
+} XrSystemEyeTrackingPropertiesFB;
+
+typedef struct XrEyeGazesFB {
+    XrStructureType       type;
+    void* XR_MAY_ALIAS    next;
+    XrEyeGazeFB           gaze[XR_EYE_POSITION_COUNT_FB];
+    XrTime                time;
+} XrEyeGazesFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrCreateEyeTrackerFB)(XrSession session, const XrEyeTrackerCreateInfoFB* createInfo, XrEyeTrackerFB* eyeTracker);
+typedef XrResult (XRAPI_PTR *PFN_xrDestroyEyeTrackerFB)(XrEyeTrackerFB eyeTracker);
+typedef XrResult (XRAPI_PTR *PFN_xrGetEyeGazesFB)(XrEyeTrackerFB eyeTracker, const XrEyeGazesInfoFB* gazeInfo, XrEyeGazesFB* eyeGazes);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateEyeTrackerFB(
+    XrSession                                   session,
+    const XrEyeTrackerCreateInfoFB*             createInfo,
+    XrEyeTrackerFB*                             eyeTracker);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyEyeTrackerFB(
+    XrEyeTrackerFB                              eyeTracker);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetEyeGazesFB(
+    XrEyeTrackerFB                              eyeTracker,
+    const XrEyeGazesInfoFB*                     gazeInfo,
+    XrEyeGazesFB*                               eyeGazes);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
 #define XR_FB_passthrough_keyboard_hands 1
-#define XR_FB_passthrough_keyboard_hands_SPEC_VERSION 1
+#define XR_FB_passthrough_keyboard_hands_SPEC_VERSION 2
 #define XR_FB_PASSTHROUGH_KEYBOARD_HANDS_EXTENSION_NAME "XR_FB_passthrough_keyboard_hands"
 typedef struct XrPassthroughKeyboardHandsIntensityFB {
     XrStructureType             type;
@@ -3953,14 +5079,532 @@ XRAPI_ATTR XrResult XRAPI_CALL xrPassthroughLayerSetKeyboardHandsIntensityFB(
 #endif /* !XR_NO_PROTOTYPES */
 
 
+#define XR_FB_composition_layer_settings 1
+#define XR_FB_composition_layer_settings_SPEC_VERSION 1
+#define XR_FB_COMPOSITION_LAYER_SETTINGS_EXTENSION_NAME "XR_FB_composition_layer_settings"
+typedef XrFlags64 XrCompositionLayerSettingsFlagsFB;
+
+// Flag bits for XrCompositionLayerSettingsFlagsFB
+static const XrCompositionLayerSettingsFlagsFB XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SUPER_SAMPLING_BIT_FB = 0x00000001;
+static const XrCompositionLayerSettingsFlagsFB XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SUPER_SAMPLING_BIT_FB = 0x00000002;
+static const XrCompositionLayerSettingsFlagsFB XR_COMPOSITION_LAYER_SETTINGS_NORMAL_SHARPENING_BIT_FB = 0x00000004;
+static const XrCompositionLayerSettingsFlagsFB XR_COMPOSITION_LAYER_SETTINGS_QUALITY_SHARPENING_BIT_FB = 0x00000008;
+
+// XrCompositionLayerSettingsFB extends XrCompositionLayerBaseHeader
+typedef struct XrCompositionLayerSettingsFB {
+    XrStructureType                      type;
+    const void* XR_MAY_ALIAS             next;
+    XrCompositionLayerSettingsFlagsFB    layerFlags;
+} XrCompositionLayerSettingsFB;
+
+
+
+#define XR_FB_touch_controller_proximity 1
+#define XR_FB_touch_controller_proximity_SPEC_VERSION 1
+#define XR_FB_TOUCH_CONTROLLER_PROXIMITY_EXTENSION_NAME "XR_FB_touch_controller_proximity"
+
+
+#define XR_FB_haptic_pcm 1
+
+#define XR_MAX_HAPTIC_PCM_BUFFER_SIZE_FB 4000
+
+#define XR_FB_haptic_pcm_SPEC_VERSION     1
+#define XR_FB_HAPTIC_PCM_EXTENSION_NAME   "XR_FB_haptic_pcm"
+typedef struct XrHapticPcmVibrationFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    uint32_t                    bufferSize;
+    const float*                buffer;
+    float                       sampleRate;
+    XrBool32                    append;
+    uint32_t*                   samplesConsumed;
+} XrHapticPcmVibrationFB;
+
+typedef struct XrDevicePcmSampleRateStateFB {
+    XrStructureType       type;
+    void* XR_MAY_ALIAS    next;
+    float                 sampleRate;
+} XrDevicePcmSampleRateStateFB;
+
+typedef XrDevicePcmSampleRateStateFB XrDevicePcmSampleRateGetInfoFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrGetDeviceSampleRateFB)(XrSession session, const XrHapticActionInfo* hapticActionInfo, XrDevicePcmSampleRateGetInfoFB* deviceSampleRate);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrGetDeviceSampleRateFB(
+    XrSession                                   session,
+    const XrHapticActionInfo*                   hapticActionInfo,
+    XrDevicePcmSampleRateGetInfoFB*             deviceSampleRate);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_FB_composition_layer_depth_test 1
+#define XR_FB_composition_layer_depth_test_SPEC_VERSION 1
+#define XR_FB_COMPOSITION_LAYER_DEPTH_TEST_EXTENSION_NAME "XR_FB_composition_layer_depth_test"
+
+typedef enum XrCompareOpFB {
+    XR_COMPARE_OP_NEVER_FB = 0,
+    XR_COMPARE_OP_LESS_FB = 1,
+    XR_COMPARE_OP_EQUAL_FB = 2,
+    XR_COMPARE_OP_LESS_OR_EQUAL_FB = 3,
+    XR_COMPARE_OP_GREATER_FB = 4,
+    XR_COMPARE_OP_NOT_EQUAL_FB = 5,
+    XR_COMPARE_OP_GREATER_OR_EQUAL_FB = 6,
+    XR_COMPARE_OP_ALWAYS_FB = 7,
+    XR_COMPARE_OP_MAX_ENUM_FB = 0x7FFFFFFF
+} XrCompareOpFB;
+// XrCompositionLayerDepthTestFB extends XrCompositionLayerBaseHeader
+typedef struct XrCompositionLayerDepthTestFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrBool32                    depthMask;
+    XrCompareOpFB               compareOp;
+} XrCompositionLayerDepthTestFB;
+
+
+
+#define XR_META_local_dimming 1
+#define XR_META_local_dimming_SPEC_VERSION 1
+#define XR_META_LOCAL_DIMMING_EXTENSION_NAME "XR_META_local_dimming"
+
+typedef enum XrLocalDimmingModeMETA {
+    XR_LOCAL_DIMMING_MODE_OFF_META = 0,
+    XR_LOCAL_DIMMING_MODE_ON_META = 1,
+    XR_LOCAL_DIMMING_MODE_MAX_ENUM_META = 0x7FFFFFFF
+} XrLocalDimmingModeMETA;
+// XrLocalDimmingFrameEndInfoMETA extends XrFrameEndInfo
+typedef struct XrLocalDimmingFrameEndInfoMETA {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrLocalDimmingModeMETA      localDimmingMode;
+} XrLocalDimmingFrameEndInfoMETA;
+
+
+
+#define XR_OCULUS_external_camera 1
+#define XR_MAX_EXTERNAL_CAMERA_NAME_SIZE_OCULUS 32
+#define XR_OCULUS_external_camera_SPEC_VERSION 1
+#define XR_OCULUS_EXTERNAL_CAMERA_EXTENSION_NAME "XR_OCULUS_external_camera"
+
+typedef enum XrExternalCameraAttachedToDeviceOCULUS {
+    XR_EXTERNAL_CAMERA_ATTACHED_TO_DEVICE_NONE_OCULUS = 0,
+    XR_EXTERNAL_CAMERA_ATTACHED_TO_DEVICE_HMD_OCULUS = 1,
+    XR_EXTERNAL_CAMERA_ATTACHED_TO_DEVICE_LTOUCH_OCULUS = 2,
+    XR_EXTERNAL_CAMERA_ATTACHED_TO_DEVICE_RTOUCH_OCULUS = 3,
+    XR_EXTERNAL_CAMERA_ATTACHED_TO_DEVICE_MAX_ENUM_OCULUS = 0x7FFFFFFF
+} XrExternalCameraAttachedToDeviceOCULUS;
+typedef XrFlags64 XrExternalCameraStatusFlagsOCULUS;
+
+// Flag bits for XrExternalCameraStatusFlagsOCULUS
+static const XrExternalCameraStatusFlagsOCULUS XR_EXTERNAL_CAMERA_STATUS_CONNECTED_BIT_OCULUS = 0x00000001;
+static const XrExternalCameraStatusFlagsOCULUS XR_EXTERNAL_CAMERA_STATUS_CALIBRATING_BIT_OCULUS = 0x00000002;
+static const XrExternalCameraStatusFlagsOCULUS XR_EXTERNAL_CAMERA_STATUS_CALIBRATION_FAILED_BIT_OCULUS = 0x00000004;
+static const XrExternalCameraStatusFlagsOCULUS XR_EXTERNAL_CAMERA_STATUS_CALIBRATED_BIT_OCULUS = 0x00000008;
+static const XrExternalCameraStatusFlagsOCULUS XR_EXTERNAL_CAMERA_STATUS_CAPTURING_BIT_OCULUS = 0x00000010;
+
+typedef struct XrExternalCameraIntrinsicsOCULUS {
+    XrTime         lastChangeTime;
+    XrFovf         fov;
+    float          virtualNearPlaneDistance;
+    float          virtualFarPlaneDistance;
+    XrExtent2Di    imageSensorPixelResolution;
+} XrExternalCameraIntrinsicsOCULUS;
+
+typedef struct XrExternalCameraExtrinsicsOCULUS {
+    XrTime                                    lastChangeTime;
+    XrExternalCameraStatusFlagsOCULUS         cameraStatusFlags;
+    XrExternalCameraAttachedToDeviceOCULUS    attachedToDevice;
+    XrPosef                                   relativePose;
+} XrExternalCameraExtrinsicsOCULUS;
+
+typedef struct XrExternalCameraOCULUS {
+    XrStructureType                     type;
+    const void* XR_MAY_ALIAS            next;
+    char                                name[XR_MAX_EXTERNAL_CAMERA_NAME_SIZE_OCULUS];
+    XrExternalCameraIntrinsicsOCULUS    intrinsics;
+    XrExternalCameraExtrinsicsOCULUS    extrinsics;
+} XrExternalCameraOCULUS;
+
+typedef XrResult (XRAPI_PTR *PFN_xrEnumerateExternalCamerasOCULUS)(XrSession session, uint32_t cameraCapacityInput, uint32_t* cameraCountOutput, XrExternalCameraOCULUS* cameras);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumerateExternalCamerasOCULUS(
+    XrSession                                   session,
+    uint32_t                                    cameraCapacityInput,
+    uint32_t*                                   cameraCountOutput,
+    XrExternalCameraOCULUS*                     cameras);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_META_performance_metrics 1
+#define XR_META_performance_metrics_SPEC_VERSION 2
+#define XR_META_PERFORMANCE_METRICS_EXTENSION_NAME "XR_META_performance_metrics"
+
+typedef enum XrPerformanceMetricsCounterUnitMETA {
+    XR_PERFORMANCE_METRICS_COUNTER_UNIT_GENERIC_META = 0,
+    XR_PERFORMANCE_METRICS_COUNTER_UNIT_PERCENTAGE_META = 1,
+    XR_PERFORMANCE_METRICS_COUNTER_UNIT_MILLISECONDS_META = 2,
+    XR_PERFORMANCE_METRICS_COUNTER_UNIT_BYTES_META = 3,
+    XR_PERFORMANCE_METRICS_COUNTER_UNIT_HERTZ_META = 4,
+    XR_PERFORMANCE_METRICS_COUNTER_UNIT_MAX_ENUM_META = 0x7FFFFFFF
+} XrPerformanceMetricsCounterUnitMETA;
+typedef XrFlags64 XrPerformanceMetricsCounterFlagsMETA;
+
+// Flag bits for XrPerformanceMetricsCounterFlagsMETA
+static const XrPerformanceMetricsCounterFlagsMETA XR_PERFORMANCE_METRICS_COUNTER_ANY_VALUE_VALID_BIT_META = 0x00000001;
+static const XrPerformanceMetricsCounterFlagsMETA XR_PERFORMANCE_METRICS_COUNTER_UINT_VALUE_VALID_BIT_META = 0x00000002;
+static const XrPerformanceMetricsCounterFlagsMETA XR_PERFORMANCE_METRICS_COUNTER_FLOAT_VALUE_VALID_BIT_META = 0x00000004;
+
+typedef struct XrPerformanceMetricsStateMETA {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrBool32                    enabled;
+} XrPerformanceMetricsStateMETA;
+
+typedef struct XrPerformanceMetricsCounterMETA {
+    XrStructureType                         type;
+    const void* XR_MAY_ALIAS                next;
+    XrPerformanceMetricsCounterFlagsMETA    counterFlags;
+    XrPerformanceMetricsCounterUnitMETA     counterUnit;
+    uint32_t                                uintValue;
+    float                                   floatValue;
+} XrPerformanceMetricsCounterMETA;
+
+typedef XrResult (XRAPI_PTR *PFN_xrEnumeratePerformanceMetricsCounterPathsMETA)(XrInstance instance, uint32_t counterPathCapacityInput, uint32_t* counterPathCountOutput, XrPath* counterPaths);
+typedef XrResult (XRAPI_PTR *PFN_xrSetPerformanceMetricsStateMETA)(XrSession session, const XrPerformanceMetricsStateMETA* state);
+typedef XrResult (XRAPI_PTR *PFN_xrGetPerformanceMetricsStateMETA)(XrSession session, XrPerformanceMetricsStateMETA* state);
+typedef XrResult (XRAPI_PTR *PFN_xrQueryPerformanceMetricsCounterMETA)(XrSession session, XrPath counterPath, XrPerformanceMetricsCounterMETA* counter);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrEnumeratePerformanceMetricsCounterPathsMETA(
+    XrInstance                                  instance,
+    uint32_t                                    counterPathCapacityInput,
+    uint32_t*                                   counterPathCountOutput,
+    XrPath*                                     counterPaths);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrSetPerformanceMetricsStateMETA(
+    XrSession                                   session,
+    const XrPerformanceMetricsStateMETA*        state);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetPerformanceMetricsStateMETA(
+    XrSession                                   session,
+    XrPerformanceMetricsStateMETA*              state);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrQueryPerformanceMetricsCounterMETA(
+    XrSession                                   session,
+    XrPath                                      counterPath,
+    XrPerformanceMetricsCounterMETA*            counter);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_FB_spatial_entity_storage_batch 1
+#define XR_FB_spatial_entity_storage_batch_SPEC_VERSION 1
+#define XR_FB_SPATIAL_ENTITY_STORAGE_BATCH_EXTENSION_NAME "XR_FB_spatial_entity_storage_batch"
+typedef struct XrSpaceListSaveInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    uint32_t                    spaceCount;
+    XrSpace*                    spaces;
+    XrSpaceStorageLocationFB    location;
+} XrSpaceListSaveInfoFB;
+
+typedef struct XrEventDataSpaceListSaveCompleteFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrAsyncRequestIdFB          requestId;
+    XrResult                    result;
+} XrEventDataSpaceListSaveCompleteFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrSaveSpaceListFB)(XrSession session, const XrSpaceListSaveInfoFB* info, XrAsyncRequestIdFB* requestId);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrSaveSpaceListFB(
+    XrSession                                   session,
+    const XrSpaceListSaveInfoFB*                info,
+    XrAsyncRequestIdFB*                         requestId);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_FB_spatial_entity_user 1
+typedef uint64_t XrSpaceUserIdFB;
+#define XR_FB_spatial_entity_user_SPEC_VERSION 1
+#define XR_FB_SPATIAL_ENTITY_USER_EXTENSION_NAME "XR_FB_spatial_entity_user"
+typedef struct XrSpaceUserCreateInfoFB {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrSpaceUserIdFB             userId;
+} XrSpaceUserCreateInfoFB;
+
+typedef XrResult (XRAPI_PTR *PFN_xrCreateSpaceUserFB)(XrSession session, const XrSpaceUserCreateInfoFB* info, XrSpaceUserFB* user);
+typedef XrResult (XRAPI_PTR *PFN_xrGetSpaceUserIdFB)(XrSpaceUserFB user, XrSpaceUserIdFB* userId);
+typedef XrResult (XRAPI_PTR *PFN_xrDestroySpaceUserFB)(XrSpaceUserFB user);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrCreateSpaceUserFB(
+    XrSession                                   session,
+    const XrSpaceUserCreateInfoFB*              info,
+    XrSpaceUserFB*                              user);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrGetSpaceUserIdFB(
+    XrSpaceUserFB                               user,
+    XrSpaceUserIdFB*                            userId);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroySpaceUserFB(
+    XrSpaceUserFB                               user);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_META_headset_id 1
+#define XR_META_headset_id_SPEC_VERSION   1
+#define XR_META_HEADSET_ID_EXTENSION_NAME "XR_META_headset_id"
+// XrSystemHeadsetIdPropertiesMETA extends XrSystemProperties
+typedef struct XrSystemHeadsetIdPropertiesMETA {
+    XrStructureType       type;
+    void* XR_MAY_ALIAS    next;
+    XrUuidEXT             id;
+} XrSystemHeadsetIdPropertiesMETA;
+
+
+
 #define XR_EXT_uuid 1
 #define XR_EXT_uuid_SPEC_VERSION          1
 #define XR_EXT_UUID_EXTENSION_NAME        "XR_EXT_uuid"
-#define XR_UUID_SIZE_EXT                  16
-typedef struct XrUuidEXT {
-    uint8_t    data[XR_UUID_SIZE_EXT];
-} XrUuidEXT;
 
+
+#define XR_QCOM_tracking_optimization_settings 1
+#define XR_QCOM_tracking_optimization_settings_SPEC_VERSION 1
+#define XR_QCOM_TRACKING_OPTIMIZATION_SETTINGS_EXTENSION_NAME "XR_QCOM_tracking_optimization_settings"
+
+typedef enum XrTrackingOptimizationSettingsDomainQCOM {
+    XR_TRACKING_OPTIMIZATION_SETTINGS_DOMAIN_ALL_QCOM = 1,
+    XR_TRACKING_OPTIMIZATION_SETTINGS_DOMAIN_MAX_ENUM_QCOM = 0x7FFFFFFF
+} XrTrackingOptimizationSettingsDomainQCOM;
+
+typedef enum XrTrackingOptimizationSettingsHintQCOM {
+    XR_TRACKING_OPTIMIZATION_SETTINGS_HINT_NONE_QCOM = 0,
+    XR_TRACKING_OPTIMIZATION_SETTINGS_HINT_LONG_RANGE_PRIORIZATION_QCOM = 1,
+    XR_TRACKING_OPTIMIZATION_SETTINGS_HINT_CLOSE_RANGE_PRIORIZATION_QCOM = 2,
+    XR_TRACKING_OPTIMIZATION_SETTINGS_HINT_LOW_POWER_PRIORIZATION_QCOM = 3,
+    XR_TRACKING_OPTIMIZATION_SETTINGS_HINT_HIGH_POWER_PRIORIZATION_QCOM = 4,
+    XR_TRACKING_OPTIMIZATION_SETTINGS_HINT_MAX_ENUM_QCOM = 0x7FFFFFFF
+} XrTrackingOptimizationSettingsHintQCOM;
+typedef XrResult (XRAPI_PTR *PFN_xrSetTrackingOptimizationSettingsHintQCOM)(XrSession session, XrTrackingOptimizationSettingsDomainQCOM domain, XrTrackingOptimizationSettingsHintQCOM hint);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrSetTrackingOptimizationSettingsHintQCOM(
+    XrSession                                   session,
+    XrTrackingOptimizationSettingsDomainQCOM    domain,
+    XrTrackingOptimizationSettingsHintQCOM      hint);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_HTC_passthrough 1
+XR_DEFINE_HANDLE(XrPassthroughHTC)
+#define XR_HTC_passthrough_SPEC_VERSION   1
+#define XR_HTC_PASSTHROUGH_EXTENSION_NAME "XR_HTC_passthrough"
+
+typedef enum XrPassthroughFormHTC {
+    XR_PASSTHROUGH_FORM_PLANAR_HTC = 0,
+    XR_PASSTHROUGH_FORM_PROJECTED_HTC = 1,
+    XR_PASSTHROUGH_FORM_MAX_ENUM_HTC = 0x7FFFFFFF
+} XrPassthroughFormHTC;
+typedef struct XrPassthroughCreateInfoHTC {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrPassthroughFormHTC        form;
+} XrPassthroughCreateInfoHTC;
+
+typedef struct XrPassthroughColorHTC {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    float                       alpha;
+} XrPassthroughColorHTC;
+
+// XrPassthroughMeshTransformInfoHTC extends XrCompositionLayerPassthroughHTC
+typedef struct XrPassthroughMeshTransformInfoHTC {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    uint32_t                    vertexCount;
+    const XrVector3f*           vertices;
+    uint32_t                    indexCount;
+    const uint32_t*             indices;
+    XrSpace                     baseSpace;
+    XrTime                      time;
+    XrPosef                     pose;
+    XrVector3f                  scale;
+} XrPassthroughMeshTransformInfoHTC;
+
+typedef struct XrCompositionLayerPassthroughHTC {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrCompositionLayerFlags     layerFlags;
+    XrSpace                     space;
+    XrPassthroughHTC            passthrough;
+    XrPassthroughColorHTC       color;
+} XrCompositionLayerPassthroughHTC;
+
+typedef XrResult (XRAPI_PTR *PFN_xrCreatePassthroughHTC)(XrSession session, const XrPassthroughCreateInfoHTC* createInfo, XrPassthroughHTC* passthrough);
+typedef XrResult (XRAPI_PTR *PFN_xrDestroyPassthroughHTC)(XrPassthroughHTC passthrough);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrCreatePassthroughHTC(
+    XrSession                                   session,
+    const XrPassthroughCreateInfoHTC*           createInfo,
+    XrPassthroughHTC*                           passthrough);
+
+XRAPI_ATTR XrResult XRAPI_CALL xrDestroyPassthroughHTC(
+    XrPassthroughHTC                            passthrough);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_HTC_foveation 1
+#define XR_HTC_foveation_SPEC_VERSION     1
+#define XR_HTC_FOVEATION_EXTENSION_NAME   "XR_HTC_foveation"
+
+typedef enum XrFoveationModeHTC {
+    XR_FOVEATION_MODE_DISABLE_HTC = 0,
+    XR_FOVEATION_MODE_FIXED_HTC = 1,
+    XR_FOVEATION_MODE_DYNAMIC_HTC = 2,
+    XR_FOVEATION_MODE_CUSTOM_HTC = 3,
+    XR_FOVEATION_MODE_MAX_ENUM_HTC = 0x7FFFFFFF
+} XrFoveationModeHTC;
+
+typedef enum XrFoveationLevelHTC {
+    XR_FOVEATION_LEVEL_NONE_HTC = 0,
+    XR_FOVEATION_LEVEL_LOW_HTC = 1,
+    XR_FOVEATION_LEVEL_MEDIUM_HTC = 2,
+    XR_FOVEATION_LEVEL_HIGH_HTC = 3,
+    XR_FOVEATION_LEVEL_MAX_ENUM_HTC = 0x7FFFFFFF
+} XrFoveationLevelHTC;
+typedef XrFlags64 XrFoveationDynamicFlagsHTC;
+
+// Flag bits for XrFoveationDynamicFlagsHTC
+static const XrFoveationDynamicFlagsHTC XR_FOVEATION_DYNAMIC_LEVEL_ENABLED_BIT_HTC = 0x00000001;
+static const XrFoveationDynamicFlagsHTC XR_FOVEATION_DYNAMIC_CLEAR_FOV_ENABLED_BIT_HTC = 0x00000002;
+static const XrFoveationDynamicFlagsHTC XR_FOVEATION_DYNAMIC_FOCAL_CENTER_OFFSET_ENABLED_BIT_HTC = 0x00000004;
+
+typedef struct XrFoveationApplyInfoHTC {
+    XrStructureType             type;
+    const void* XR_MAY_ALIAS    next;
+    XrFoveationModeHTC          mode;
+    uint32_t                    subImageCount;
+    XrSwapchainSubImage*        subImages;
+} XrFoveationApplyInfoHTC;
+
+typedef struct XrFoveationConfigurationHTC {
+    XrFoveationLevelHTC    level;
+    float                  clearFovDegree;
+    XrVector2f             focalCenterOffset;
+} XrFoveationConfigurationHTC;
+
+// XrFoveationDynamicModeInfoHTC extends XrFoveationApplyInfoHTC
+typedef struct XrFoveationDynamicModeInfoHTC {
+    XrStructureType               type;
+    const void* XR_MAY_ALIAS      next;
+    XrFoveationDynamicFlagsHTC    dynamicFlags;
+} XrFoveationDynamicModeInfoHTC;
+
+// XrFoveationCustomModeInfoHTC extends XrFoveationApplyInfoHTC
+typedef struct XrFoveationCustomModeInfoHTC {
+    XrStructureType                       type;
+    const void* XR_MAY_ALIAS              next;
+    uint32_t                              configCount;
+    const XrFoveationConfigurationHTC*    configs;
+} XrFoveationCustomModeInfoHTC;
+
+typedef XrResult (XRAPI_PTR *PFN_xrApplyFoveationHTC)(XrSession session, const XrFoveationApplyInfoHTC* applyInfo);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrApplyFoveationHTC(
+    XrSession                                   session,
+    const XrFoveationApplyInfoHTC*              applyInfo);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_EXT_active_action_set_priority 1
+#define XR_EXT_active_action_set_priority_SPEC_VERSION 1
+#define XR_EXT_ACTIVE_ACTION_SET_PRIORITY_EXTENSION_NAME "XR_EXT_active_action_set_priority"
+typedef struct XrActiveActionSetPriorityEXT {
+    XrActionSet    actionSet;
+    uint32_t       priorityOverride;
+} XrActiveActionSetPriorityEXT;
+
+// XrActiveActionSetPrioritiesEXT extends XrActionsSyncInfo
+typedef struct XrActiveActionSetPrioritiesEXT {
+    XrStructureType                        type;
+    const void* XR_MAY_ALIAS               next;
+    uint32_t                               actionSetPriorityCount;
+    const XrActiveActionSetPriorityEXT*    actionSetPriorities;
+} XrActiveActionSetPrioritiesEXT;
+
+
+
+#define XR_MNDX_force_feedback_curl 1
+#define XR_MNDX_force_feedback_curl_SPEC_VERSION 1
+#define XR_MNDX_FORCE_FEEDBACK_CURL_EXTENSION_NAME "XR_MNDX_force_feedback_curl"
+
+typedef enum XrForceFeedbackCurlLocationMNDX {
+    XR_FORCE_FEEDBACK_CURL_LOCATION_THUMB_CURL_MNDX = 0,
+    XR_FORCE_FEEDBACK_CURL_LOCATION_INDEX_CURL_MNDX = 1,
+    XR_FORCE_FEEDBACK_CURL_LOCATION_MIDDLE_CURL_MNDX = 2,
+    XR_FORCE_FEEDBACK_CURL_LOCATION_RING_CURL_MNDX = 3,
+    XR_FORCE_FEEDBACK_CURL_LOCATION_LITTLE_CURL_MNDX = 4,
+    XR_FORCE_FEEDBACK_CURL_LOCATION_MAX_ENUM_MNDX = 0x7FFFFFFF
+} XrForceFeedbackCurlLocationMNDX;
+// XrSystemForceFeedbackCurlPropertiesMNDX extends XrSystemProperties
+typedef struct XrSystemForceFeedbackCurlPropertiesMNDX {
+    XrStructureType       type;
+    void* XR_MAY_ALIAS    next;
+    XrBool32              supportsForceFeedbackCurl;
+} XrSystemForceFeedbackCurlPropertiesMNDX;
+
+typedef struct XrForceFeedbackCurlApplyLocationMNDX {
+    XrForceFeedbackCurlLocationMNDX    location;
+    float                              value;
+} XrForceFeedbackCurlApplyLocationMNDX;
+
+typedef struct XrForceFeedbackCurlApplyLocationsMNDX {
+    XrStructureType                          type;
+    const void* XR_MAY_ALIAS                 next;
+    uint32_t                                 locationCount;
+    XrForceFeedbackCurlApplyLocationMNDX*    locations;
+} XrForceFeedbackCurlApplyLocationsMNDX;
+
+typedef XrResult (XRAPI_PTR *PFN_xrApplyForceFeedbackCurlMNDX)(XrHandTrackerEXT handTracker, const XrForceFeedbackCurlApplyLocationsMNDX* locations);
+
+#ifndef XR_NO_PROTOTYPES
+#ifdef XR_EXTENSION_PROTOTYPES
+XRAPI_ATTR XrResult XRAPI_CALL xrApplyForceFeedbackCurlMNDX(
+    XrHandTrackerEXT                            handTracker,
+    const XrForceFeedbackCurlApplyLocationsMNDX* locations);
+#endif /* XR_EXTENSION_PROTOTYPES */
+#endif /* !XR_NO_PROTOTYPES */
+
+
+#define XR_BD_controller_interaction 1
+#define XR_BD_controller_interaction_SPEC_VERSION 1
+#define XR_BD_CONTROLLER_INTERACTION_EXTENSION_NAME "XR_BD_controller_interaction"
+
+
+#define XR_EXT_local_floor 1
+#define XR_EXT_local_floor_SPEC_VERSION   1
+#define XR_EXT_LOCAL_FLOOR_EXTENSION_NAME "XR_EXT_local_floor"
 
 #ifdef __cplusplus
 }

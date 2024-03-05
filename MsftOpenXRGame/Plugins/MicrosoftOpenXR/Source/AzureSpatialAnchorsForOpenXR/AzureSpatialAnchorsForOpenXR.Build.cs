@@ -13,7 +13,7 @@ namespace UnrealBuildTool.Rules
 	{
 		public AzureSpatialAnchorsForOpenXR(ReadOnlyTargetRules Target) : base(Target)
 		{
-			if (Target.Platform == UnrealTargetPlatform.Win64 || Target.Platform == UnrealTargetPlatform.HoloLens)
+			if (Target.Platform == UnrealTargetPlatform.Win64)
 			{
 				// these parameters mandatory for winrt support
 				bEnableExceptions = true;

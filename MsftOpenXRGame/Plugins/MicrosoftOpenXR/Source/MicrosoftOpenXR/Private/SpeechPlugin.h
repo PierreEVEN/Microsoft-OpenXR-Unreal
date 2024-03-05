@@ -32,7 +32,7 @@
 #include "Windows/HideWindowsPlatformTypes.h"
 
 #if SUPPORTS_REMOTING
-#include "openxr_msft_holographic_remoting.h "
+#include "openxr_msft_holographic_remoting.h"
 #include "openxr_msft_remoting_speech.h"
 #endif
 

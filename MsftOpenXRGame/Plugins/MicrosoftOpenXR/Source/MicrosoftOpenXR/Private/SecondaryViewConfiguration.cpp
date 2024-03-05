@@ -122,6 +122,7 @@ namespace MicrosoftOpenXR
 
 	void* FSecondaryViewConfigurationPlugin::OnWaitFrame(XrSession InSession, void* InNext)
 	{
+		UE_LOG(LogTemp, Error, TEXT("The secondary view feature have been disabled. Please see the source code to find a fix"));
 		// If there are no enabled seconary view configs there is no need to query their state.
 		if (EnabledViewConfigTypes.Num() == 0)
 		{
@@ -141,6 +142,7 @@ namespace MicrosoftOpenXR
 
 	const void* FSecondaryViewConfigurationPlugin::OnBeginFrame(XrSession InSession, XrTime DisplayTime, const void* InNext)
 	{
+		UE_LOG(LogTemp, Error, TEXT("The secondary view feature have been disabled. Please see the source code to find a fix"));
 		// Log when the active state of a secondary view config changes. Ideally this would be done immediately after xrWaitFrame
 		// completes but there is no "PostWaitFrame" callback.
 		const int SharedViewCount = FMath::Min(SecondaryViewState_RenderThread.SecondaryViewConfigStates.Num(),
@@ -167,6 +169,7 @@ namespace MicrosoftOpenXR
 		return InNext;
 	}
 
+	/* @TODO 5.3 : removed for 5.3 compatibility and should be reimplemented with new engine features
 	void FSecondaryViewConfigurationPlugin::GetViewConfigurations(XrSystemId InSystem, TArray<XrViewConfigurationView>& OutViews)
 	{
 		PiplinedFrameState& ViewConfigurationFrameState = GetSecondaryViewStateForThread();
@@ -294,6 +297,7 @@ namespace MicrosoftOpenXR
 
 		return InNext;
 	}
+	*/
 
 	FSecondaryViewConfigurationPlugin::PiplinedFrameState& FSecondaryViewConfigurationPlugin::GetSecondaryViewStateForThread()
 	{

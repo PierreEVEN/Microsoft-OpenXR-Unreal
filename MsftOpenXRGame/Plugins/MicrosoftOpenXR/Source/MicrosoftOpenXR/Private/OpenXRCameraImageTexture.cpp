@@ -93,6 +93,7 @@ public:
 	/**
 	 * Called when the resource is initialized. This is only called by the rendering thread.
 	 */
+	/* @TODO 5.3 : removed for 5.3 compatibility and should be reimplemented with new engine features
 	virtual void InitRHI() override
 	{
 		check(IsInRenderingThread());
@@ -195,7 +196,8 @@ public:
 		RHIBindDebugLabelName(TextureRHI, *Owner->GetName());
 		RHIUpdateTextureReference(Owner->TextureReference.TextureReferenceRHI, TextureRHI);
 	}
-
+	*/
+	
 	virtual void ReleaseRHI() override
 	{
 		RHIUpdateTextureReference(Owner->TextureReference.TextureReferenceRHI, nullptr);
@@ -219,13 +221,16 @@ public:
 	/** Render thread update of the texture so we don't get 2 updates per frame on the render thread */
 	void Init_RenderThread(std::shared_ptr<winrt::handle> handle)
 	{
+		UE_LOG(LogTemp, Error, TEXT("The camera to image feature have been disabled. Please see the source code to find a fix"));
 		check(IsInRenderingThread());
 		if (LastFrameNumber != GFrameNumber)
 		{
 			LastFrameNumber = GFrameNumber;
 			ReleaseRHI();
 			CameraImageHandle = handle;
+			/* @TODO 5.3 : removed for 5.3 compatibility and should be reimplemented with new engine features
 			InitRHI();
+			*/
 		}
 	}
 
@@ -269,8 +274,9 @@ private:
 			FShaderResourceViewRHIRef Y_SRV = RHICreateShaderResourceView(CopyTextureRef, 0, 1, PF_G8);
 			FShaderResourceViewRHIRef UV_SRV = RHICreateShaderResourceView(CopyTextureRef, 0, 1, PF_R8G8);
 
+			/* @TODO 5.3 : removed for 5.3 compatibility and should be reimplemented with new engine features
 			ConvertShader->SetParameters(CommandList, CopyTextureRef->GetSizeXY(), Y_SRV, UV_SRV, OutputDim, MediaShaders::YuvToRgbRec601Scaled, MediaShaders::YUVOffset8bits, false);
-
+			*/
 			// draw full size quad into render target
 			FBufferRHIRef VertexBuffer = CreateTempMediaVertexBuffer();
 			CommandList.SetStreamSource(0, VertexBuffer, 0);
