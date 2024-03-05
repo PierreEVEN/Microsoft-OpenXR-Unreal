@@ -1,5 +1,10 @@
 ![Microsoft OpenXR for Unreal Engine](Docs/Images/Banner.png)
 
+> Note : This is a fork of the original Microsoft repository. As it is not maintained anymore by microsoft, I've ported the plugin to Unreal Engine 5.3.
+> Some minor features are currently disabled.
+>
+> Please note that it's not possible to build an embeded app anymore as Epic Game removed the Hololens plateform from the engine. However it will still work by using remoting like before !
+
 # What is the Microsoft OpenXR plugin?
 The Microsoft OpenXR plugin is an Unreal Engine game plugin which provides additional features
 available on Microsoft's Mixed Reality devices like the HoloLens 2 when using OpenXR.
