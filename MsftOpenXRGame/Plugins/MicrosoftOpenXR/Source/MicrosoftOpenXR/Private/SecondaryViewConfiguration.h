@@ -68,13 +68,10 @@ namespace MicrosoftOpenXR
 		void* OnWaitFrame(XrSession InSession, void* InNext) override;
 		const void* OnBeginFrame(XrSession InSession, XrTime DisplayTime, const void* InNext) override;
 
-		
-		/* @TODO 5.3 : removed for 5.3 compatibility and should be reimplemented with new engine features
-		void GetViewConfigurations(XrSystemId InSystem, TArray<XrViewConfigurationView>& OutViews) override;
-		void GetViewLocations(XrSession InSession, XrTime DisplayTime, XrSpace space, TArray<XrView>& OutViews) override;
-		const void* OnEndFrame(XrSession InSession, XrTime DisplayTime, const TArray<XrSwapchainSubImage> InColorImages,
-			const TArray<XrSwapchainSubImage> InDepthImages, const void* InNext) override;
-			*/
+		virtual void* OnEnumerateViewConfigurationViews(XrInstance InInstance, XrSystemId InSystem, XrViewConfigurationType InViewConfigurationType, uint32_t InViewIndex, void* InNext) override;
+
+		virtual const void* OnLocateViews(XrSession InSession, XrTime InDisplayTime, const void* InNext) override;
+		const void* OnEndFrame(XrSession InSession, XrTime DisplayTime, const void* InNext) override; 
 
 	private:
 		PiplinedFrameState& GetSecondaryViewStateForThread();

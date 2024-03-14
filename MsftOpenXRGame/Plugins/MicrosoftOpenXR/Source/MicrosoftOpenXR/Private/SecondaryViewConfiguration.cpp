@@ -2,6 +2,7 @@
 
 #include "MicrosoftOpenXR.h"
 #include "OpenXRCore.h"
+#include "openxr_private/openxr_reflection.h"
 
 namespace
 {
@@ -169,8 +170,8 @@ namespace MicrosoftOpenXR
 		return InNext;
 	}
 
-	/* @TODO 5.3 : removed for 5.3 compatibility and should be reimplemented with new engine features
-	void FSecondaryViewConfigurationPlugin::GetViewConfigurations(XrSystemId InSystem, TArray<XrViewConfigurationView>& OutViews)
+	void* FSecondaryViewConfigurationPlugin::OnEnumerateViewConfigurationViews(XrInstance InInstance, XrSystemId InSystem,
+		XrViewConfigurationType InViewConfigurationType, uint32_t InViewIndex, void* InNext)
 	{
 		PiplinedFrameState& ViewConfigurationFrameState = GetSecondaryViewStateForThread();
 
@@ -180,17 +181,24 @@ namespace MicrosoftOpenXR
 			if (ViewConfigurationFrameState.SecondaryViewConfigStates[i].active)
 			{
 				// Append all of the views for this active view configuration.
-				OutViews.Append(EnabledViewConfigurationViews[i]);
+				for (auto& view : EnabledViewConfigurationViews[i])
+				{
+					view.next = InNext;
+					InNext = &view;
+				}
 			}
 		}
+
+		return InNext;
 	}
 
-	void FSecondaryViewConfigurationPlugin::GetViewLocations(
-		XrSession InSession, XrTime InDisplayTime, XrSpace InSpace, TArray<XrView>& OutViews)
+	const void* FSecondaryViewConfigurationPlugin::OnLocateViews(XrSession InSession, XrTime InDisplayTime, const void* InNext)
 	{
+		// @TODO 5.3 : reimplement secondary view as the behavior have changed
+		/*
 		PiplinedFrameState& ViewConfigurationFrameState = GetSecondaryViewStateForThread();
-
-		ViewConfigurationFrameState.ViewSpace = InSpace;
+		
+		ViewConfigurationFrameState.ViewSpace = InSpace; // Todo retrieve FOpenXRHMD.DeviceSpaces[HMDDeviceId].Space
 
 		// Return back the views enabled for this frame.
 		ViewConfigurationFrameState.SecondaryViews.SetNum(ViewConfigurationFrameState.SecondaryViewConfigStates.Num());
@@ -222,11 +230,14 @@ namespace MicrosoftOpenXR
 				OutViews.Append(SecondaryViews);
 			}
 		}
+		*/
+		return InNext;
 	}
 
-	const void* FSecondaryViewConfigurationPlugin::OnEndFrame(XrSession InSession, XrTime DisplayTime,
-		const TArray<XrSwapchainSubImage> InColorImages, const TArray<XrSwapchainSubImage> InDepthImages, const void* InNext)
+	const void* FSecondaryViewConfigurationPlugin::OnEndFrame(XrSession InSession, XrTime DisplayTime, const void* InNext)
 	{
+		// @TODO 5.3 : reimplement secondary view as the behavior have changed
+		/*
 		const PiplinedFrameState& ViewConfigurationFrameState = GetSecondaryViewStateForThread();
 
 		SecondaryProjectionLayers.Reset();
@@ -276,7 +287,7 @@ namespace MicrosoftOpenXR
 			}
 
 			SecondaryProjectionLayers.Add(SingleProjectionLayer(ViewConfigState.viewConfigurationType,
-				EnabledViewConfigEnvBlendModes[i], ViewConfigurationFrameState.ViewSpace, std::move(ProjectionViews)));
+				EnabledViewConfigEnvBlendModes[i], ViewConfigurationFrameState.ViewSpace, std::move(ProjectionViews))); 
 		}
 
 		// Now that the SecondaryProjectionLayers TArray is completed and there is no more chance of resize, set up the
@@ -294,10 +305,10 @@ namespace MicrosoftOpenXR
 			SecondaryViewConfigurationEndInfo.viewConfigurationLayersInfo = SecondaryViewLayers.GetData();
 			return &SecondaryViewConfigurationEndInfo;
 		}
-
+		*/
+		
 		return InNext;
 	}
-	*/
 
 	FSecondaryViewConfigurationPlugin::PiplinedFrameState& FSecondaryViewConfigurationPlugin::GetSecondaryViewStateForThread()
 	{

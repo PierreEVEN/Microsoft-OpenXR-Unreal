@@ -10,6 +10,8 @@
 #include "SceneUtils.h"
 #include "MediaShaders.h"
 #include "HeadMountedDisplayTypes.h"
+#include "TextureResource.h"
+#include "ColorManagement/Public/ColorManagementDefines.h"
 
 #if PLATFORM_WINDOWS || PLATFORM_HOLOLENS
 //-------------------------------------------------------------------------------------------------
@@ -93,8 +95,7 @@ public:
 	/**
 	 * Called when the resource is initialized. This is only called by the rendering thread.
 	 */
-	/* @TODO 5.3 : removed for 5.3 compatibility and should be reimplemented with new engine features
-	virtual void InitRHI() override
+	virtual void InitRHI(FRHICommandListBase& RHICmdList) override
 	{
 		check(IsInRenderingThread());
 
@@ -196,7 +197,6 @@ public:
 		RHIBindDebugLabelName(TextureRHI, *Owner->GetName());
 		RHIUpdateTextureReference(Owner->TextureReference.TextureReferenceRHI, TextureRHI);
 	}
-	*/
 	
 	virtual void ReleaseRHI() override
 	{
@@ -228,9 +228,8 @@ public:
 			LastFrameNumber = GFrameNumber;
 			ReleaseRHI();
 			CameraImageHandle = handle;
-			/* @TODO 5.3 : removed for 5.3 compatibility and should be reimplemented with new engine features
-			InitRHI();
-			*/
+			FRHICommandListBase& RHICmdList = FRHICommandListImmediate::Get();
+			InitRHI(RHICmdList);
 		}
 	}
 
@@ -270,13 +269,15 @@ private:
 			TShaderMapRef<FNV12ConvertPS> ConvertShader(ShaderMap);
 			GraphicsPSOInit.BoundShaderState.PixelShaderRHI = ConvertShader.GetPixelShader();
 			SetGraphicsPipelineState(CommandList, GraphicsPSOInit, 0);
-
+			
 			FShaderResourceViewRHIRef Y_SRV = RHICreateShaderResourceView(CopyTextureRef, 0, 1, PF_G8);
 			FShaderResourceViewRHIRef UV_SRV = RHICreateShaderResourceView(CopyTextureRef, 0, 1, PF_R8G8);
 
-			/* @TODO 5.3 : removed for 5.3 compatibility and should be reimplemented with new engine features
-			ConvertShader->SetParameters(CommandList, CopyTextureRef->GetSizeXY(), Y_SRV, UV_SRV, OutputDim, MediaShaders::YuvToRgbRec601Scaled, MediaShaders::YUVOffset8bits, false);
-			*/
+			FRHIBatchedShaderParameters Params;
+			FMatrix44f Matrix = FMatrix44f::Identity;
+			FMatrix44f YUvMtx = FMatrix44f(MediaShaders::YuvToRgbRec601Scaled);
+			SetShaderParametersLegacyPS(CommandList, ConvertShader, CopyTextureRef->GetSizeXY(), Y_SRV, UV_SRV,OutputDim, YUvMtx, UE::Color::EEncoding::Linear, Matrix /* (MediaShaders::YUVOffset8bits) */, false);
+			
 			// draw full size quad into render target
 			FBufferRHIRef VertexBuffer = CreateTempMediaVertexBuffer();
 			CommandList.SetStreamSource(0, VertexBuffer, 0);
